@@ -108,9 +108,9 @@ object Runner extends App {
     r ← product(a, b)((_:Int) * 2 + (_:Int) * 2)
   } yield r
 
-  implicit val Id = Default.~>[Id]
-  implicit val Op = Default.~>[Option]
-  implicit val Task = Default.~>[Task]
+  implicit val Id = free.Default.~>[Id]
+  implicit val Op = free.Default.~>[Option]
+  implicit val Task = free.Default.~>[Task]
 
   println((Free.runFC(program)(Id)))
   println((Free.runFC(program1)(Id)))

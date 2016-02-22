@@ -8,7 +8,7 @@ package object parser {
   import scalaz._, Scalaz._
 
   trait Parser[A] {
-    def apply(s: String): scalaz.ValidationNel[String, A]
+    def apply(line: String): scalaz.ValidationNel[String, A]
   }
 
   implicit val stringParser: Parser[String] = new Parser[String] {
