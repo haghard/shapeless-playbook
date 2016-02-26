@@ -3,13 +3,14 @@ package io.scalac
 import shapeless._
 import shapeless.ops.function.FnToProduct
 import shapeless.ops.hlist.Tupler
+
 import scala.languageFeature.implicitConversions
 import scalaz.Monad
 import scalaz.syntax.ToMonadOps
 
 package object shapelessmonad {
 
-  trait IsHListOfM[M[_], In <: HList, Out <: HList] extends ToMonadOps{
+  trait IsHListOfM[M[_], In <: HList, Out <: HList] extends ToMonadOps {
     def hsequence(l: In): M[Out]
   }
 
@@ -46,14 +47,14 @@ package object shapelessmonad {
   def hsequence[M[_], In <: HList, Out <: HList](l: In)(implicit ev: IsHListOfM[M, In, Out], m: Monad[M]) = ev.hsequence(l)
 
   case class ScalacApplicativeBuilder[M[_], In <: HList, Out <: HList](values: In)(implicit m: Monad[M]) {
-    def asTuple[T](implicit  ev: IsHListOfM[M, In, Out], m: Monad[M], tupler: Tupler.Aux[Out, T]): M[T] = m.map(hsequence(values))(_.tupled)
+    def asTuple[T](implicit ev: IsHListOfM[M, In, Out], m: Monad[M], tupler: Tupler.Aux[Out, T]): M[T] = m.map(hsequence(values))(_.tupled)
 
-    def apply[F, FOut](f: F)(implicit fnEv: FnToProduct.Aux[F, Out => FOut],  ev: IsHListOfM[M, In, Out]): M[FOut] =
+    def apply[F, FOut](f: F)(implicit fnEv: FnToProduct.Aux[F, Out => FOut], ev: IsHListOfM[M, In, Out]): M[FOut] =
       m.map(hsequence(values))(fnEv(f))
 
     def :@:[X, T1](newOne: M[X]) = ScalacApplicativeBuilder[M, M[X] :: In, X :: Out](newOne :: values)
   }
 
-  implicit def ToScalacApplicativeBuilder[M[_], V](value: M[V])(implicit ev: IsHListOfM[M, M[V] :: HNil, V :: HNil], m: Monad[M]): ScalacApplicativeBuilder[M, M[V] :: HNil, V::HNil] =
+  implicit def ToScalacApplicativeBuilder[M[_], V](value: M[V])(implicit ev: IsHListOfM[M, M[V] :: HNil, V :: HNil], m: Monad[M]): ScalacApplicativeBuilder[M, M[V] :: HNil, V :: HNil] =
     new ScalacApplicativeBuilder[M, M[V] :: HNil, V :: HNil](value :: HNil)
 }
