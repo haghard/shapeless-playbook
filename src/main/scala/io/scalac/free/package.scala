@@ -78,8 +78,12 @@ package object free {
     * FnToProduct.Aux[F, L => R]; is he built-in “predicate” that Shapeless provides to encode the relation that holds
     * when F can be converted into a function from HList L to return type R; it holds when it is possible
     * to derive an FnToProduct[F] instance called that converts F into L => R
+    *
+    * HLists can be seen as an alternative implementation of the concept of Tuple or more generally, of the concept of Product.
+    * Abstracting over Arity
     */
-  def product[P <: Product, F, L <: HList, R](p: P)(f: F)(implicit generic: Generic.Aux[P, L], fp: FnToProduct.Aux[F, L => R]):Dsl[R] = {
+  def product[P <: Product, F, L <: HList, R](p: P)(f: F)(implicit generic: Generic.Aux[P, L],
+                                                          fp: FnToProduct.Aux[F, L => R]):Dsl[R] = {
     val hlist = generic to p
     Free.liftFC(Output[R](f toProduct hlist))
   }
