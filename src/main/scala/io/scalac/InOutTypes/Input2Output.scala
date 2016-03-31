@@ -62,14 +62,16 @@ object Input2Output {
 
   case class SumResp(sum: Int) extends Response
 
-  sealed trait Flow3[In, Out] {
+  sealed trait Flow3[In] {
+    type Out
     def exec(in: In): Out
   }
 
   object Flow3 {
-    def apply[In <: Request[Out], Out <: Response](implicit e: Flow3[In, Out]) = e
+    def apply[In <: Request[Out], Out <: Response](implicit e: Flow3[In]) = e
 
-    implicit def exchange = new Flow3[SumReq, SumResp] {
+    implicit def sum = new Flow3[SumReq] {
+      override type Out = SumResp
       override def exec(in: SumReq) = SumResp(in.x + in.y)
     }
   }
