@@ -1,8 +1,11 @@
 package io.scalac.parser
 
+import scala.annotation.implicitNotFound
+
 object TypeClassParser {
 
   case class User(id: Int, name: String, email: String)
+  case class User1(id: Int, name: String, email: String)
 
   trait Readable[T] {
     def read(line: String): T
@@ -16,7 +19,7 @@ object TypeClassParser {
 
     def apply[A: Readable]: Readable[A] = implicitly[Readable[A]]
 
-    implicit val ReadableDouble = line2Readable[Double](_.toDouble)
+    implicit def readableDouble(f: String => Double) = line2Readable[Double](f(_))
     implicit val ReadableInt = line2Readable[Int](_.toInt)
     implicit val ReadableLong = line2Readable[Long](_.toLong)
     implicit val ReadableString = line2Readable[String](new String(_))
@@ -24,9 +27,11 @@ object TypeClassParser {
     implicit val ReadableCharList = line2Readable[List[Char]](_.toCharArray.toList)
     implicit val ReadableStringList = line2Readable[List[String]](_.split(':').toList)
 
-    implicit val readableUser = line2Readable(_.split(':') match { case Array(id, name, email) =>
-      User(id.read[Int], name, email)
-    })
+    implicit val readableUser: Readable[User] =
+      line2Readable(_.split(':') match {
+        case Array(id, name, email) => User(id.read[Int], name.read[String], email.read[String])
+        case other => throw new Exception("String format if wrong")
+      })
 
     implicit class Ops(val value: String) {
       def read[T: Readable]: T = implicitly[Readable[T]].read(value)
@@ -40,6 +45,7 @@ object TypeClassParser {
     //http://rnduja.github.io/2016/01/19/a_shapeless_primer/
     val G = Generic[User]
     val user = G.from(199 :: "haghard" :: "haghad@gmail.com" :: HNil)
+    println(user)
 
     /*
     import scalaz.Kleisli._
@@ -51,9 +57,11 @@ object TypeClassParser {
     println(component run "99")
     */
 
-    println(user)
     println("9945".read[Int])
     println(Readable[Int].read("994589"))
+
     println("345343:haghard:haghad@gmail.com".read[User])
+
+    //println("345343:haghard:haghad@gmail.com".read[User1])
   }
 }
