@@ -1,7 +1,5 @@
 package io.scalac.parser
 
-import scala.annotation.implicitNotFound
-
 object TypeClassParser {
 
   case class User(id: Int, name: String, email: String)
@@ -30,11 +28,11 @@ object TypeClassParser {
     implicit val readableUser: Readable[User] =
       line2Readable(_.split(':') match {
         case Array(id, name, email) => User(id.read[Int], name.read[String], email.read[String])
-        case other => throw new Exception("String format if wrong")
+        case fields => throw new Exception(s"Expected fields size:3 - actual: ${fields.size}")
       })
 
     implicit class Ops(val value: String) {
-      def read[T: Readable]: T = implicitly[Readable[T]].read(value)
+      def read[T: Readable]: T = (implicitly[Readable[T]] read value)
     }
   }
 
@@ -59,7 +57,6 @@ object TypeClassParser {
 
     println("9945".read[Int])
     println(Readable[Int].read("994589"))
-
     println("345343:haghard:haghad@gmail.com".read[User])
 
     //println("345343:haghard:haghad@gmail.com".read[User1])
