@@ -38,7 +38,6 @@ object Input2Output {
     def apply[In](in: In)(implicit e: Flow[In]) = e(in)
   }
 
-  /** ************************************************************************/
   sealed trait Flow2[Out] {
     def computed: Out
   }
@@ -51,9 +50,8 @@ object Input2Output {
     def computed = ToUppercaseResponse(str.toUpperCase)
   }
 
-  def process2[O](in: Flow2[O]): O = in.computed
+  def process[O](in: Flow2[O]): O = in.computed
 
-  /** ************************************************************************/
   trait Request[T <: Response]
 
   trait Response
@@ -79,8 +77,8 @@ object Input2Output {
   /***************************************************************************/
 
   def main(args: Array[String]) = {
-    val sum1 = process2(AddRequest1(1, 2))
-    val line1 = process2(ToUppercaseRequest1("qwerty"))
+    val sum1 = process(AddRequest1(1, 2))
+    val line1 = process(ToUppercaseRequest1("qwerty"))
 
     val sum2 = (FlowT[SumReq, SumResp] receive SumReq(1, 2))
 

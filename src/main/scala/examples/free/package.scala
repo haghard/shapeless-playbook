@@ -5,24 +5,19 @@ import scalaz.Scalaz._
 import scalaz._
 import scalaz.concurrent.Task
 
-
 //http://kanaka.io/blog
 //http://rnduja.github.io/2016/01/19/a_shapeless_primer/
 package object free {
 
   //Algebra
   sealed trait Console[T]
-
   case class WriteValue[T](result: T) extends Console[T]
-
   case class ReadValue[T](prompt: String, parse: String => T) extends Console[T]
 
   type Dsl[T] = FreeC[Console, T]
 
-  trait Interpretator[F[_]] {
-    self ⇒
+  trait Interpretator[F[_]] { self ⇒
     def evaluate[T](given: F[T]): T
-
     def ~>[G[_] : Monad]: (F ~> G) = Interpretator.nat(self, scalaz.Monad[G])
   }
 
@@ -57,13 +52,9 @@ package object free {
     }
   }
 
-  def readDouble: Dsl[Double] = Free.liftFC(ReadValue[Double]("> enter a double: ", {
-    _.toDouble
-  }))
+  def readDouble: Dsl[Double] = Free.liftFC(ReadValue[Double]("> enter a double: ", { _.toDouble  }))
 
-  def readInt: Dsl[Int] = Free.liftFC(ReadValue[Int]("> enter an int: ", {
-    _.toInt
-  }))
+  def readInt: Dsl[Int] = Free.liftFC(ReadValue[Int]("> enter an int: ", {  _.toInt }))
 
   def readString: Dsl[String] = Free.liftFC(ReadValue[String]("> enter a string: ", identity))
 
@@ -93,8 +84,7 @@ package object free {
     * HLists can be seen as an alternative implementation of the concept of Tuple or more generally, of the concept of Product.
     * Abstracting over Arity
     */
-  def product[P <: Product, F, L <: HList, R](p: P)(f: F)(implicit generic: Generic.Aux[P, L],
-                                                          fp: FnToProduct.Aux[F, L => R]): Dsl[R] = {
+  def product[P <: Product, F, L <: HList, R](p: P)(f: F)(implicit generic: Generic.Aux[P, L], fp: FnToProduct.Aux[F, L => R]): Dsl[R] = {
     val hlist = generic to p
     Free.liftFC(WriteValue[R](f toProduct hlist))
   }
@@ -107,7 +97,6 @@ package object free {
   * examples.free.FreeApplication.main(Array("1"))
   */
 object FreeApplication extends App {
-
   import free._
   import shapeless._
 
