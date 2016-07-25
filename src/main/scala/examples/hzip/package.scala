@@ -1,9 +1,10 @@
-package io.scalac
+package examples
 
 import shapeless._
 import shapeless.ops.hlist.Tupler
 import scala.concurrent.{ExecutionContext, Future}
 import scala.languageFeature.implicitConversions
+
 package object hzip {
 
   trait IsHListOfFutures[In <: HList, Out <:HList ] {

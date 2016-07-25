@@ -1,4 +1,4 @@
-package io.scalac.hzip
+package examples.hzip
 
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures

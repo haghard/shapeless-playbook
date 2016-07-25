@@ -1,13 +1,10 @@
-package io.scalac.hzip
+package examples.hzip
 
 import shapeless.{HNil, ::, HList}
 import shapeless.ops.function.FnToProduct
 import shapeless.ops.hlist.Prepend
 
-/**
- * Created by tomasz on 08/10/15.
- */
-object quasispray extends App{
+object quasispray extends App {
 
   case class Response(body: String)
   case class Request(url : String)

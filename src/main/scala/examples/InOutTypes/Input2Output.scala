@@ -1,4 +1,4 @@
-package io.scalac.InOutTypes
+package examples.InOutTypes
 
 //http://stackoverflow.com/questions/36310264/how-to-define-a-function-whose-output-type-depends-on-the-input-type/36322221
 object Input2Output {
@@ -62,27 +62,27 @@ object Input2Output {
 
   case class SumResp(sum: Int) extends Response
 
-  sealed trait Flow3[In] {
+  sealed trait FlowT[In] {
     type Out
-    def exec(in: In): Out
+    def receive(in: In): Out
   }
 
-  object Flow3 {
-    def apply[In <: Request[Out], Out <: Response](implicit e: Flow3[In]) = e
+  object FlowT {
+    def apply[In <: Request[Out], Out <: Response](implicit e: FlowT[In]) = e
 
-    implicit def sum = new Flow3[SumReq] {
+    implicit def sum = new FlowT[SumReq] {
       override type Out = SumResp
-      override def exec(in: SumReq) = SumResp(in.x + in.y)
+      override def receive(in: SumReq) = SumResp(in.x + in.y)
     }
   }
 
-  /** *************************************************************************/
+  /***************************************************************************/
 
   def main(args: Array[String]) = {
     val sum1 = process2(AddRequest1(1, 2))
     val line1 = process2(ToUppercaseRequest1("qwerty"))
 
-    val sum2 = (Flow3[SumReq, SumResp] exec SumReq(1, 2))
+    val sum2 = (FlowT[SumReq, SumResp] receive SumReq(1, 2))
 
     val sum = Flow(AddRequest(1, 2))
     val line = Flow(ToUppercaseRequest("qwerty"))

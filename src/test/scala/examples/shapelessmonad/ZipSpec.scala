@@ -1,13 +1,11 @@
-package io.scalac.shapelessmonad
+package examples.shapelessmonad
 
 import org.scalatest.{Matchers, FlatSpec}
 import org.scalatest.concurrent.ScalaFutures
 
 import scala.concurrent.Future._
 
-/**
-  * Created by tomasz on 18/10/15.
-  */
+
 class ZipSpec extends FlatSpec with ScalaFutures with Matchers {
   import scala.concurrent.ExecutionContext.Implicits.global
   import scalaz.Scalaz._

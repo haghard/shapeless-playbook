@@ -1,4 +1,4 @@
-package io.scalac
+package examples
 
 //https://meta.plasm.us/posts/2015/11/08/type-classes-and-generic-derivation/
 //http://stackoverflow.com/questions/33858745/automatically-convert-a-case-class-to-an-extensible-record-in-shapeless/33860864#33860864

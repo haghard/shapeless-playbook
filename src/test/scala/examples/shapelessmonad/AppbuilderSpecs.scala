@@ -1,4 +1,4 @@
-package io.scalac.shapelessmonad
+package examples.shapelessmonad
 
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{FlatSpec, Matchers}
@@ -6,9 +6,6 @@ import shapeless.HNil
 
 import scala.concurrent.Future
 
-/**
-  * Created by tomasz on 17/10/15.
-  */
 class AppbuilderSpecs extends FlatSpec with Matchers with ScalaFutures {
 
   import scala.concurrent.ExecutionContext.Implicits.global

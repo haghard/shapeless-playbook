@@ -1,4 +1,4 @@
-package io.scalac.hmap
+package examples.hmap
 
 object Hmap {
 

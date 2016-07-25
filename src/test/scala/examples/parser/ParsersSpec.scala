@@ -1,4 +1,4 @@
-package io.scalac.parser
+package examples.parser
 
 import org.scalatest.{FlatSpec, Matchers}
 import shapeless.HNil

@@ -1,4 +1,4 @@
-package io.scalac.rules
+package examples.rules
 
 //https://github.com/davegurnell/functional-data-validation
 object Validation {

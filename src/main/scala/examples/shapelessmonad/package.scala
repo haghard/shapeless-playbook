@@ -1,4 +1,4 @@
-package io.scalac
+package examples
 
 import shapeless._
 import shapeless.ops.function.FnToProduct

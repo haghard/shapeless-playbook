@@ -1,4 +1,4 @@
-package io.scalac.parser
+package examples.parser
 
 object TypeClassParser {
 
