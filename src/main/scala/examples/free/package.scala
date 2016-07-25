@@ -60,9 +60,6 @@ package object free {
 
   def randomString: Dsl[String] = Free.liftFC(WriteValue[String](java.util.UUID.randomUUID.toString))
 
-  //def map2[T, E, A](a: T, b: E)(f:(T,E) => A): Dsl[A] = Free.liftFC(Output[A](f(a, b)))
-  //def map3[T, E, O, A](a: T, b: E, c: O)(f:(T,E,O) => A): Dsl[A] = Free.liftFC(Output[A](f(a, b, c)))
-
   import shapeless._
   import ops.function._
   import syntax.std.function._

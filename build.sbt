@@ -21,3 +21,8 @@ libraryDependencies ++= Seq(
   scalazCore, scalazConcurrent,
   "com.lihaoyi"  % "ammonite" % "0.7.0" cross CrossVersion.full
 )
+
+libraryDependencies ++= Seq(
+  "org.typelevel" %% "cats-core" % "0.6.1",
+  "org.typelevel" %% "cats-free" % "0.6.1"
+)

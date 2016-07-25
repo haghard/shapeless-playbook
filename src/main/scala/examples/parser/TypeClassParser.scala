@@ -31,8 +31,8 @@ object TypeClassParser {
         case fields => throw new Exception(s"Expected fields size:3 - actual: ${fields.size}")
       })
 
-    implicit class Ops(val value: String) {
-      def read[T: Readable]: T = (implicitly[Readable[T]] read value)
+    implicit class Ops(val line: String) {
+      def read[T: Readable]: T = (implicitly[Readable[T]] read line)
     }
   }
 

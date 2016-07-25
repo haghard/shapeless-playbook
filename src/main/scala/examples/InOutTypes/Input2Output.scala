@@ -74,8 +74,6 @@ object Input2Output {
     }
   }
 
-  /***************************************************************************/
-
   def main(args: Array[String]) = {
     val sum1 = process(AddRequest1(1, 2))
     val line1 = process(ToUppercaseRequest1("qwerty"))
