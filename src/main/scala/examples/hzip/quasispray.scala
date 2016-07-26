@@ -7,10 +7,10 @@ import shapeless.ops.hlist.Prepend
 object quasispray extends App {
 
   case class Response(body: String)
-  case class Request(url : String)
+  case class Request(url: String)
   type Route = Request => Response
-  def complete(f: => Response): Route = {
-    ctx => f
+  def complete(f: => Response): Route = { ctx =>
+    f
   }
 
   trait Directive[X <: HList] { self =>
@@ -18,27 +18,27 @@ object quasispray extends App {
     def apply[F](f: F)(implicit fp: FnToProduct.Aux[F, X => Route]) = {
       happly(fp(f))
     }
-    def &[Y <: HList](that: Directive[Y])(implicit prepend: Prepend[X, Y]): Directive[prepend.Out] = new Directive[prepend.Out] {
-      override def happly(f: prepend.Out => Route): Route = {
-        self.happly( x =>
-          that.happly( y =>
-            f(prepend(x, y))
-          )
-        )
+    def &[Y <: HList](that: Directive[Y])(
+        implicit prepend: Prepend[X, Y]): Directive[prepend.Out] =
+      new Directive[prepend.Out] {
+        override def happly(f: prepend.Out => Route): Route = {
+          self.happly(x => that.happly(y => f(prepend(x, y))))
+        }
       }
-    }
   }
 
   def host: Directive[String :: HNil] = {
-    extract { case Request(url) =>
-      val Array(protocol, rest) = url.split("://")
-      rest.split("/", 1).head :: HNil
+    extract {
+      case Request(url) =>
+        val Array(protocol, rest) = url.split("://")
+        rest.split("/", 1).head :: HNil
     }
   }
   def protocol: Directive[String :: HNil] = {
-    extract { case Request(url) =>
-      val Array(protocol, rest) = url.split("://")
-      protocol :: HNil
+    extract {
+      case Request(url) =>
+        val Array(protocol, rest) = url.split("://")
+        protocol :: HNil
     }
   }
 
@@ -54,8 +54,6 @@ object quasispray extends App {
     }
   }
 
-
   println(route(Request("http://www.scalac.io")))
-
 
 }

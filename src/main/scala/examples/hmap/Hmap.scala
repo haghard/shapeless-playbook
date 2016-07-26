@@ -3,7 +3,7 @@ package examples.hmap
 object Hmap {
 
   class GenericType[T](value: T)
-  class GMap[K,V]
+  class GMap[K, V]
 
   case class GInt(k: Int) extends GenericType[Int](k)
   case class GString(k: String) extends GenericType[String](k)
@@ -14,9 +14,9 @@ object Hmap {
   def main(args: Array[String]) = {
 
     val hoMap = shapeless.HMap[GMap](
-      GInt(0) -> GString("a"),
-      GInt(99) -> GString("b"),
-      GString("key-a") -> GInt(12)
+        GInt(0) -> GString("a"),
+        GInt(99) -> GString("b"),
+        GString("key-a") -> GInt(12)
     )
 
     println(hoMap.get(GInt(0)).get)

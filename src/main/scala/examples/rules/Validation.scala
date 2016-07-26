@@ -47,11 +47,14 @@ object Validation {
   def main(args: Array[String]) = {
     case class Event(number: Int, source: String, sink: String)
 
-    val nonEmpty: Rule[String, String] = (str: String) => if(str.isEmpty) Fail(List("Empty string")) else Pass(str)
+    val nonEmpty: Rule[String, String] = (str: String) =>
+      if (str.isEmpty) Fail(List("Empty string")) else Pass(str)
 
     def capitalize(str: String): String = str(0).toUpper +: str.substring(1)
 
-    def gte(min: Int) = (num: Int) => if(num < min) Fail(List("Too small number")) else Pass(num)
+    def gte(min: Int) =
+      (num: Int) =>
+        if (num < min) Fail(List("Too small number")) else Pass(num)
 
     val checkNumber: Rule[Event, Int] =
       validator[Event] map (_.number) flatMap gte(124)
@@ -62,20 +65,16 @@ object Validation {
     val checkZip: Rule[Event, String] =
       validator[Event] map (_.sink) flatMap nonEmpty
 
-    val checkAddress: Rule[Event, Event] =
-      (address: Event) =>
-        checkZip(address).ap {
-          checkStreet(address).ap {
-            checkNumber(address).ap {
-              Pass {
-                (number: Int) =>
-                  (street: String) =>
-                    (zipCode: String) =>
-                      Event(number, street, zipCode)
-              }
+    val checkAddress: Rule[Event, Event] = (address: Event) =>
+      checkZip(address).ap {
+        checkStreet(address).ap {
+          checkNumber(address).ap {
+            Pass { (number: Int) => (street: String) => (zipCode: String) =>
+              Event(number, street, zipCode)
             }
           }
         }
+    }
 
     /*
     val read: Rule[Event, Event] =
@@ -84,7 +83,7 @@ object Validation {
         Pass(address)
 
     read(Event(123, "Twitter", "Cassandra")).flatMap(checkAddress)
-    */
+     */
 
     println(checkAddress(Event(123, "NewYork", "")))
   }

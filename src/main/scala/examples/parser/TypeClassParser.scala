@@ -17,19 +17,24 @@ object TypeClassParser {
 
     def apply[A: Readable]: Readable[A] = implicitly[Readable[A]]
 
-    implicit def readableDouble(f: String => Double) = line2Readable[Double](f(_))
+    implicit def readableDouble(f: String => Double) =
+      line2Readable[Double](f(_))
     implicit val ReadableInt = line2Readable[Int](_.toInt)
     implicit val ReadableLong = line2Readable[Long](_.toLong)
     implicit val ReadableString = line2Readable[String](new String(_))
     implicit val ReadableBoolean = line2Readable[Boolean](_.toBoolean)
-    implicit val ReadableCharList = line2Readable[List[Char]](_.toCharArray.toList)
-    implicit val ReadableStringList = line2Readable[List[String]](_.split(':').toList)
+    implicit val ReadableCharList =
+      line2Readable[List[Char]](_.toCharArray.toList)
+    implicit val ReadableStringList =
+      line2Readable[List[String]](_.split(':').toList)
 
-    implicit val readableUser: Readable[User] =
-      line2Readable(_.split(':') match {
-        case Array(id, name, email) => User(id.read[Int], name.read[String], email.read[String])
-        case fields => throw new Exception(s"Expected fields size:3 - actual: ${fields.size}")
-      })
+    implicit val readableUser: Readable[User] = line2Readable(
+        _.split(':') match {
+      case Array(id, name, email) =>
+        User(id.read[Int], name.read[String], email.read[String])
+      case fields =>
+        throw new Exception(s"Expected fields size:3 - actual: ${fields.size}")
+    })
 
     implicit class Ops(val line: String) {
       def read[T: Readable]: T = (implicitly[Readable[T]] read line)
@@ -53,7 +58,7 @@ object TypeClassParser {
       b <- kleisli { (x: String) ⇒ scala.util.Try(x.toInt).map(_ * 2).toOption }
     } yield (a + b)
     println(component run "99")
-    */
+     */
 
     println("9945".read[Int])
     println(Readable[Int].read("994589"))

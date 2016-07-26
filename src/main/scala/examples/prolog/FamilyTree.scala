@@ -16,8 +16,7 @@ package examples.prolog
   Edge.to[Carl] works
   Edge.to[John] error
 
-*/
-
+  */
 object FamilyTree {
 
   trait Node
@@ -27,7 +26,7 @@ object FamilyTree {
   trait Tom extends Node
 
   trait Child[T <: N, U <: N]
-  trait GrandChild[T <: N, U  <: N]
+  trait GrandChild[T <: N, U <: N]
 
   //Facts database
   implicit val john_carl = new Child[John, Carl] {}
@@ -36,13 +35,13 @@ object FamilyTree {
   /**
     Rule: If there is a child relationship between X and Y and between Y and Z
     when X and Z are in grandChild relationship
-  */
+    */
   object GrandChild {
 
     /**
       Having X and Y please find evidence that in the facts db exist 2 facts
       such that GrandChild[X, Y] and Child[Y, Z]
-    */
+      */
     def apply[X <: N, Z <: N](implicit x: Child[X, _], y: Child[_, Z]) =
       new GrandChild[X, Z] {}
 
@@ -51,10 +50,11 @@ object FamilyTree {
   }
 
   object Edge {
+
     /**
       Edge.from[Carl] works
       Edge.from[John] error
-    */
+      */
     def from[X <: N](implicit x: Child[X, _]) =
       new GrandChild[X, Y forSome { type Y <: N }] {}
 
@@ -62,7 +62,7 @@ object FamilyTree {
       Edge.to[Tom]  works
       Edge.to[Carl] works
       Edge.to[John] error
-    */
+      */
     def to[X <: N](implicit x: Child[_, X]) =
       new GrandChild[Y forSome { type Y <: N }, X] {}
   }

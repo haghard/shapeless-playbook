@@ -12,19 +12,22 @@ package object free {
   //Algebra
   sealed trait Console[T]
   case class WriteValue[T](result: T) extends Console[T]
-  case class ReadValue[T](prompt: String, parse: String => T) extends Console[T]
+  case class ReadValue[T](prompt: String, parse: String => T)
+      extends Console[T]
 
   type Dsl[T] = FreeC[Console, T]
 
   trait Interpretator[F[_]] { self ⇒
     def evaluate[T](given: F[T]): T
-    def ~>[G[_] : Monad]: (F ~> G) = Interpretator.nat(self, scalaz.Monad[G])
+    def ~>[G[_]: Monad]: (F ~> G) = Interpretator.nat(self, scalaz.Monad[G])
   }
 
   object Interpretator {
-    def apply[F[_] : Interpretator] = implicitly[Interpretator[F]]
+    def apply[F[_]: Interpretator] = implicitly[Interpretator[F]]
 
-    private[Interpretator] def nat[F[_], G[_], E <: Interpretator[F]](implicit E: E, G: Monad[G]) = new (F ~> G) {
+    private[Interpretator] def nat[F[_], G[_], E <: Interpretator[F]](
+        implicit E: E,
+        G: Monad[G]) = new (F ~> G) {
       override def apply[A](console: F[A]): G[A] =
         (G.pure(E evaluate console))
     }
@@ -52,13 +55,17 @@ package object free {
     }
   }
 
-  def readDouble: Dsl[Double] = Free.liftFC(ReadValue[Double]("> enter a double: ", { _.toDouble  }))
+  def readDouble: Dsl[Double] =
+    Free.liftFC(ReadValue[Double]("> enter a double: ", { _.toDouble }))
 
-  def readInt: Dsl[Int] = Free.liftFC(ReadValue[Int]("> enter an int: ", {  _.toInt }))
+  def readInt: Dsl[Int] =
+    Free.liftFC(ReadValue[Int]("> enter an int: ", { _.toInt }))
 
-  def readString: Dsl[String] = Free.liftFC(ReadValue[String]("> enter a string: ", identity))
+  def readString: Dsl[String] =
+    Free.liftFC(ReadValue[String]("> enter a string: ", identity))
 
-  def randomString: Dsl[String] = Free.liftFC(WriteValue[String](java.util.UUID.randomUUID.toString))
+  def randomString: Dsl[String] =
+    Free.liftFC(WriteValue[String](java.util.UUID.randomUUID.toString))
 
   import shapeless._
   import ops.function._
@@ -81,12 +88,15 @@ package object free {
     * HLists can be seen as an alternative implementation of the concept of Tuple or more generally, of the concept of Product.
     * Abstracting over Arity
     */
-  def product[P <: Product, F, L <: HList, R](p: P)(f: F)(implicit generic: Generic.Aux[P, L], fp: FnToProduct.Aux[F, L => R]): Dsl[R] = {
+  def product[P <: Product, F, L <: HList, R](p: P)(f: F)(
+      implicit generic: Generic.Aux[P, L],
+      fp: FnToProduct.Aux[F, L => R]): Dsl[R] = {
     val hlist = generic to p
     Free.liftFC(WriteValue[R](f toProduct hlist))
   }
 
-  def productH[P <: Product, L <: HList](args: P)(implicit generic: Generic.Aux[P, L]): L = (generic to args)
+  def productH[P <: Product, L <: HList](args: P)(
+      implicit generic: Generic.Aux[P, L]): L = (generic to args)
 }
 
 /**
@@ -99,14 +109,12 @@ object FreeApplication extends App {
 
   case class Result(a: Int, b: String, c: Double)
 
-  val InputOutputProgram =
-    for {
-      int ← readInt
-      double ← readDouble
-      line ← randomString
-      r ← product(int, line, double)(Result(_, _, _))
-    } yield r
-
+  val InputOutputProgram = for {
+    int ← readInt
+    double ← readDouble
+    line ← randomString
+    r ← product(int, line, double)(Result(_, _, _))
+  } yield r
 
   val multiplyBy2Program = for {
     a ← readInt

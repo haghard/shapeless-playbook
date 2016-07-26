@@ -16,15 +16,19 @@ package object parser {
   }
 
   implicit val intParser: Parser[Int] = new Parser[Int] {
-    def apply(s: String) = Try(s.toInt.successNel[String]).recover {
-      case ex: Exception => s"Error parsing Int $s: ${ex.getMessage}".failureNel[Int]
-    }.get
+    def apply(s: String) =
+      Try(s.toInt.successNel[String]).recover {
+        case ex: Exception =>
+          s"Error parsing Int $s: ${ex.getMessage}".failureNel[Int]
+      }.get
   }
 
   implicit val doubleParser: Parser[Double] = new Parser[Double] {
-    def apply(s: String) = Try(s.toDouble.successNel[String]).recover {
-      case ex: Exception => s"Error parsing Double $s: ${ex.getMessage}".failureNel[Double]
-    }.get
+    def apply(s: String) =
+      Try(s.toDouble.successNel[String]).recover {
+        case ex: Exception =>
+          s"Error parsing Double $s: ${ex.getMessage}".failureNel[Double]
+      }.get
   }
 
   //This says that we know how to parse a string into an empty HList (i.e. HNil)
@@ -34,17 +38,19 @@ package object parser {
   }
 
   //We know how to parse a string into an HList made up of a head H and a tail T, but only if we know how to parse into both H and T
-  implicit def hConsParser[H: Parser, T <: HList: Parser]: Parser[H :: T] = new Parser[H :: T] {
-    def apply(line: String): scalaz.ValidationNel[String, H :: T] = {
-      (line split ";").toList match {
-        case h +: rest => for {
-          head <- implicitly[Parser[H]].apply(h)
-          tail <- implicitly[Parser[T]].apply(rest mkString (";"))
-          //_ = { println(line); println(head); println(tail); println("******") }
-        } yield head :: tail
+  implicit def hConsParser[H: Parser, T <: HList: Parser]: Parser[H :: T] =
+    new Parser[H :: T] {
+      def apply(line: String): scalaz.ValidationNel[String, H :: T] = {
+        (line split ";").toList match {
+          case h +: rest =>
+            for {
+              head <- implicitly[Parser[H]].apply(h)
+              tail <- implicitly[Parser[T]].apply(rest mkString (";"))
+              //_ = { println(line); println(head); println(tail); println("******") }
+            } yield head :: tail
+        }
       }
     }
-  }
 
   //https://stackoverflow.com/questions/33725935/shapeless-generic-aux/33738732#33738732
   //gen.Repr  Generic.Aux[T, gen.Repr]
@@ -57,7 +63,8 @@ package object parser {
   }
 
   /*Generic[A] { type Repr = R }*/
-  implicit def caseClassParser[A, R <: HList](implicit Gen: Generic.Aux[A, R], parser: Parser[R]) =
+  implicit def caseClassParser[A, R <: HList](implicit Gen: Generic.Aux[A, R],
+                                              parser: Parser[R]) =
     new Parser[A] {
       def apply(line: String): scalaz.ValidationNel[String, A] = {
         (parser(line) map (Gen.from))

@@ -18,7 +18,7 @@ object Input2Output {
   }
 
   object Flow {
-    type Aux[I, O] = Flow[I] {type Out = O}
+    type Aux[I, O] = Flow[I] { type Out = O }
 
     implicit def toUppercase: Aux[ToUppercaseRequest, ToUppercaseResponse] =
       new Flow[ToUppercaseRequest] {
@@ -46,7 +46,8 @@ object Input2Output {
     def computed = AddResponse(x + y)
   }
 
-  case class ToUppercaseRequest1(str: String) extends Flow2[ToUppercaseResponse] {
+  case class ToUppercaseRequest1(str: String)
+      extends Flow2[ToUppercaseResponse] {
     def computed = ToUppercaseResponse(str.toUpperCase)
   }
 
