@@ -66,7 +66,7 @@ package object free {
 
   /**
     *
-    * Let be P a Product, that is, a tuple or a case class
+    * Let be P a Product, that is a tuple or a case class
     * Let be F an unconstrained type parameter
     * Let be L an HList
     * Let be R an unconstrained type parameter

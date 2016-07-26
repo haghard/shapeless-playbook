@@ -1,19 +1,20 @@
 package examples.parser
 
+import shapeless._
+import UnaryTCConstraint._
+import cats.Monoid
+import cats.std.all._
+import cats.syntax.all._
+import ops.hlist._
+import poly._
+
+import scala.util.Try
+
 import scala.annotation.tailrec
 
 //https://github.com/lancelet/typequest/blob/master/src/main/scala/typequest/SimpleParse.scala
 object PolyFunctionsParser {
 
-  import shapeless._
-  import UnaryTCConstraint._
-  import cats.Monoid
-  import cats.std.all._
-  import cats.syntax.all._
-  import ops.hlist._
-  import poly._
-
-  import scala.util.Try
 
   case class Parser[T](parse: String => Option[T])
 
@@ -40,16 +41,14 @@ object PolyFunctionsParser {
                                                                                           zipper: Zip.Aux[PS :: H0 :: HNil, H1],
                                                                                           mapper: Mapper[polyFunction.type, H1]): Map[String, mapper.Out] = {
     @tailrec
-    def loop(parsers: PS, in: List[String], out: Map[String, mapper.Out]): Map[String, mapper.Out] = {
+    def loop(parsers: PS, in: List[String], map: Map[String, mapper.Out]): Map[String, mapper.Out] = {
       if(!in.isEmpty) {
         val el = in.head
         val cells = parsers.mapConst(el)
-
-        ((parsers zip cells) map polyFunction).map(singletonMap)
-        loop(parsers, in.tail, out + (el -> ((parsers zip cells) map polyFunction)))
-      } else out
+        //((parsers zip cells) map polyFunction).map(singletonMap)
+        loop(parsers, in.tail, map + (el -> ((parsers zip cells) map polyFunction)))
+      } else map
     }
-
     loop(parsers, in, Map[String, mapper.Out]())
   }
 
@@ -63,9 +62,9 @@ object PolyFunctionsParser {
     * Construct a single-element map for each parsed result
     * This is:  forall T. Option[T] => Map[T, Long]
     */
-  object singletonMap extends (Option ~> ({type L[T] = Map[T, Long]})#L) {
+  object singletonMap extends (Option ~> ({type λ[T] = Map[T, Long]})#λ) {
     def apply[T](x: Option[T]) = x match {
-      case Some(y) => Map(y -> 1L)
+      case Some(v) => Map(v -> 1L)
       case None => Map.empty
     }
   }
@@ -74,7 +73,6 @@ object PolyFunctionsParser {
   println(singletonMapExample)
 
   object HLMonoid extends ProductTypeClassCompanion[Monoid] {
-
     object typeClass extends ProductTypeClass[Monoid] {
       override def emptyProduct =
         new Monoid[HNil] {
@@ -94,18 +92,16 @@ object PolyFunctionsParser {
           def combine(a: F, b: F) = from(instance.combine(to(a), to(b)))
         }
     }
-
   }
 
   import HLMonoid._
 
   def histograms[PS <: HList, H0 <: HList, H1 <: HList, H2 <: HList, H3 <: HList](parserHList: PS)(columns: List[String])
                                                                                  (implicit parserConstrant: *->*[Parser]#λ[PS],
-                                                                                  ev1: ConstMapper.Aux[String, PS, H0],
-                                                                                  ev2: Zip.Aux[PS :: H0 :: HNil, H1],
-                                                                                  ev3: Mapper.Aux[polyFunction.type, H1, H2],
-                                                                                  ev4: Mapper.Aux[singletonMap.type, H2, H3],
-                                                                                  ev5: Monoid[H3]) = columns.map(column => runParsers(parserHList)(column) map singletonMap).combineAll
+                                                                                  ev1: ConstMapper.Aux[String, PS, H0], ev2: Zip.Aux[PS :: H0 :: HNil, H1],
+                                                                                  ev3: Mapper.Aux[polyFunction.type, H1, H2], ev4: Mapper.Aux[singletonMap.type, H2, H3],
+                                                                                  ev5: Monoid[H3]) =
+    columns.map(column => runParsers(parserHList)(column) map singletonMap).combineAll
 
   val column = List("Hello", "42.0", "True", "False", "True", "True", "False", "True", "41", "42")
   val tvhExample = histograms(hParser)(column)
