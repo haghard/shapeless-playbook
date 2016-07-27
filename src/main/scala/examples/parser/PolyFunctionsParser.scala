@@ -1,16 +1,15 @@
 package examples.parser
 
-import shapeless._
-import UnaryTCConstraint._
 import cats.Monoid
 import cats.std.all._
 import cats.syntax.all._
-import ops.hlist._
-import poly._
-
-import scala.util.Try
+import shapeless.UnaryTCConstraint._
+import shapeless._
+import shapeless.ops.hlist._
+import shapeless.poly._
 
 import scala.annotation.tailrec
+import scala.util.Try
 
 //https://github.com/lancelet/typequest/blob/master/src/main/scala/typequest/SimpleParse.scala
 
@@ -83,16 +82,19 @@ object PolyFunctionsParser {
   println(singletonMapExample)
 
   object HLMonoid extends ProductTypeClassCompanion[Monoid] {
+
     object typeClass extends ProductTypeClass[Monoid] {
       override def emptyProduct =
         new Monoid[HNil] {
           def empty = HNil
+
           def combine(a: HNil, b: HNil) = HNil
         }
 
       override def product[F, T <: HList](mh: Monoid[F], mt: Monoid[T]) =
         new Monoid[F :: T] {
           def empty = mh.empty :: mt.empty
+
           def combine(a: F :: T, b: F :: T) =
             mh.combine(a.head, b.head) :: mt.combine(a.tail, b.tail)
         }
@@ -102,9 +104,11 @@ object PolyFunctionsParser {
                                  from: G => F) =
         new Monoid[F] {
           def empty = from(instance.empty)
+
           def combine(a: F, b: F) = from(instance.combine(to(a), to(b)))
         }
     }
+
   }
 
   import HLMonoid._

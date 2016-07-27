@@ -13,14 +13,14 @@ object Hmap {
 
   def main(args: Array[String]) = {
 
-    val hoMap = shapeless.HMap[GMap](
+    val hMap = shapeless.HMap[GMap](
         GInt(0) -> GString("a"),
         GInt(99) -> GString("b"),
         GString("key-a") -> GInt(12)
     )
 
-    println(hoMap.get(GInt(0)).get)
-    println(hoMap.get(GString("key-a")).get)
-    println(hoMap.get(GInt(99)).get)
+    println(hMap.get(GInt(0)).get)
+    println(hMap.get(GString("key-a")).get)
+    println(hMap.get(GInt(99)).get)
   }
 }
