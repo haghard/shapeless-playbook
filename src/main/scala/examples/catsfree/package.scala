@@ -1,10 +1,11 @@
 package examples
 
 import cats.free.Free
+import cats.{Id, ~>}
+import scala.collection.mutable
 
+//import examples.catsfree._
 package object catsfree {
-  import cats.{Id, ~>}
-  import scala.collection.mutable
 
   sealed trait KVOps[T]
   case class Put[T](key: String, value: T) extends KVOps[Unit]
@@ -71,6 +72,71 @@ package object catsfree {
         }
     }
 
-  val result = program.foldMap(transformationId)
-  println(result)
+  //program.foldMap(transformationId)
+
+  import cats.data.State
+  type Store = mutable.Map[String, Any]
+  type KVStoreState[T] = State[mutable.Map[String, Any], T]
+
+  def transformationState: KVOps ~> KVStoreState =
+    new (KVOps ~> KVStoreState) {
+      def apply[A](fa: KVOps[A]): KVStoreState[A] =
+        fa match {
+          case p: Put[A] =>
+            //short version State.modify(_.updated(p.key, p.value))
+            State[Store, A] { kvs: Store =>
+              println(s"put(${p.key}, ${p.value})")
+              (kvs.updated(p.key, p.value), ())
+            }
+          case g: Get[A] =>
+            //short version State.inspect(_.get(g.key).map(_.asInstanceOf[A]))
+            State { kvs: Store =>
+              println(s"get(${g.key})")
+              (kvs, kvs.get(g.key).map(_.asInstanceOf[A]))
+            }
+          case Delete(key) =>
+            State[Store, A] { kvs: Store =>
+              println(s"delete(${key})")
+              kvs.remove(key)
+              (kvs, ().asInstanceOf[A])
+            }
+        }
+    }
+
+  /***********************************************************/
+  val stateProgram: KVDsl[Option[Double]] = for {
+    _ <- put("key_a", 2)
+    _ <- update[Int]("key_a", (_ + 12))
+    _ <- put("key_b", 5.1)
+    a <- get[Int]("key_a")
+    b <- get[Double]("key_b")
+  } yield (cats.Apply[Option].map2(a, b)(_ + _))
+
+  val initState = mutable.Map[String, Any]()
+  val state = stateProgram.foldMap(transformationState)
+  val res = (state run initState)
+  //res.value
+
+  /***********************************************************/
+  def putS[A](key: String, value: A) =
+    State[Store, A] { kvs: Store =>
+      (kvs.updated(key, value), value)
+    }
+
+  def getS[A](key: String) =
+    State[Store, A] { kvs: Store =>
+      (kvs,
+       kvs.get(key).map(_.asInstanceOf[A]).getOrElse(null.asInstanceOf[A]))
+    }
+
+  val prog = for {
+    _ <- putS("a", 12)
+    _ <- putS("b", 8)
+    a <- getS[Int]("a")
+    b <- getS[Int]("b")
+  } yield { a + b }
+
+  val res0 = prog.run(mutable.Map[String, Any]())
+  //res0.value
+
 }
