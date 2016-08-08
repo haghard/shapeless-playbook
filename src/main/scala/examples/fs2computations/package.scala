@@ -1,7 +1,10 @@
 package examples
 
+import cats.Eval
 import fs2.util.Async
 import fs2.{Task, async}
+
+import scala.annotation.tailrec
 
 
 /**
@@ -94,4 +97,58 @@ package object fs2computations {
           s"${Thread.currentThread.getName}: latency: ${(System.currentTimeMillis - start)} $r")
     }))
   */
+  /*********************************************/
+  def fib(n: Int): Task[Int] = {
+    if (n < 2) Task now 1
+    else
+      for {
+        a ← fib(n - 1).async
+        b ← fib(n - 2).async
+      } yield {
+        a + b
+      }
+  }
+
+  def fib2(n: Int): Eval[Int] = {
+    if (n < 2) Eval now 1
+    else
+    for {
+      x ← Eval.defer(fib2(n - 1))
+      y ← Eval.defer(fib2(n - 2))
+    } yield { x + y }
+  }
+
+  fib(15).unsafeRun
+  fib2(15).value
+
+
+  def ackermannO(m: Int, n: Int, maxStack: Int = 1 << 9): Eval[Int] = {
+
+    def step(m: Int, n: Int, stack: Int): Eval[Int] =
+      if (stack >= maxStack) Eval.defer(ackermannO(m, n))
+      else go(m, n, stack + 1)
+
+    def go(m: Int, n: Int, stack: Int): Eval[Int] =
+      (m, n) match {
+        case (0, _) => Eval.now(n + 1)
+        case (m, 0) => step(m - 1, 1, stack)
+        case (m, n) => for {
+          internalRec <- step(m, n - 1, stack)
+          result      <- step(m - 1, internalRec, stack)
+        } yield result
+      }
+
+    go(m, n, 0)
+  }
+
+  def ackermann(m: Int, n: Int): Int = (m, n) match {
+    case (0, _) => n + 1
+    case (m, 0) => ackermann(m - 1, 1)
+    case (m, n) => ackermann(m - 1, ackermann(m, n - 1))
+  }
+
+  ackermann(3, 11) //Ok
+  ackermann(3, 12) //this call overflows the stack
+
+  ackermannO(3, 12, 1 << 11).value //Ok
 }
