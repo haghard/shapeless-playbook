@@ -23,6 +23,6 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.typelevel" %% "cats-core" % "0.6.1",
-  "org.typelevel" %% "cats-free" % "0.6.1"
+  "org.typelevel" %% "cats-free" % "0.6.1",
+  "co.fs2" %% "fs2-cats" % "0.1.0-SNAPSHOT"
 )
