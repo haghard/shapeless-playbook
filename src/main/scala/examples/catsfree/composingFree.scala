@@ -5,6 +5,7 @@ import cats.free.{Free, Inject}
 import cats.{Id, ~>}
 
 object composingFree {
+
   /**********************************************/
   sealed trait RW[T]
   case class Write[T](result: T) extends RW[T]

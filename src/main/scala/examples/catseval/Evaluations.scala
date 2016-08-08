@@ -76,15 +76,15 @@ object Evaluations {
   def fib1(n: Int): Eval[BigInt] =
     if (n < 2) Eval.now(BigInt(1))
     else
-    Eval.defer(fib1(n - 1).flatMap { x =>
-      fib1(n - 2).map(y => x + y)
-    })
+      Eval.defer(fib1(n - 1).flatMap { x =>
+        fib1(n - 2).map(y => x + y)
+      })
 
   def fib2(n: Int): Eval[BigInt] =
     if (n < 2) Eval.now(BigInt(1))
     else
-    for {
-      x ← Eval.defer(fib2(n - 1))
-      y <- Eval.defer(fib2(n - 2))
-    } yield { x + y }
+      for {
+        x ← Eval.defer(fib2(n - 1))
+        y <- Eval.defer(fib2(n - 2))
+      } yield { x + y }
 }
