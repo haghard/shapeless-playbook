@@ -4,9 +4,6 @@ import cats.Eval
 import fs2.util.Async
 import fs2.{Task, async}
 
-import scala.annotation.tailrec
-
-
 /**
   *
   * For blocking run, you can either call unsafeRun, which blocks the current thread, or unsafeRunSync,
@@ -57,24 +54,24 @@ package object fs2computations {
 
   def relatedTasks: Task[(TF, TF)] =
     for {
-      ref1 <- Async.ref[Task, String]
-      ref2 <- Async.ref[Task, String]
+      ref1 ← Async.ref[Task, String]
+      ref2 ← Async.ref[Task, String]
     } yield {
       val one = (str: String) => {
         println(s"start computation: $str")
         for {
-          _ <- (ref1 setPure str)
+          _ ← (ref1 setPure str)
           _ = Thread.sleep(3000)
-          r2 <- ref2.get
+          r2 ← ref2.get
         } yield str ++ r2
       }
 
       val two = (str: String) => {
         println(s"start computations: $str")
         for {
-          _ <- (ref2 setPure str)
+          _ ← (ref2 setPure str)
           _ = Thread.sleep(2000)
-          r1 <- ref1.get
+          r1 ← ref1.get
         } yield str ++ r1
       }
 
