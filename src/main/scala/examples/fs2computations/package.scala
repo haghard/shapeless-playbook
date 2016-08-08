@@ -1,7 +1,8 @@
 package examples
 
-import fs2.{Task, async}
 import fs2.util.Async
+import fs2.{Task, async}
+
 
 /**
   *
@@ -30,9 +31,7 @@ package object fs2computations {
                    //T.traverse(longs) { v =>
                    T.parallelTraverse(longs) { v =>
                      s.decrementBy(v)
-                       .map(_ =>
-                             println(
-                                 s"${Thread.currentThread.getName} decrement:$v"))
+                       .map(_ => println(s"${Thread.currentThread.getName} decrement:$v"))
                    }
                  }
 
@@ -40,9 +39,7 @@ package object fs2computations {
                    //T.traverse(longsRev) { v =>
                    T.parallelTraverse(longsRev) { v =>
                      s.incrementBy(v)
-                       .map(_ =>
-                             println(
-                                 s"${Thread.currentThread.getName} increment:$v"))
+                       .map(_ => println(s"${Thread.currentThread.getName} increment:$v"))
                    }
                  }
 
