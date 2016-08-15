@@ -40,7 +40,7 @@ object PolyFunctionsParser {
   }
 
   def runParsersAll[PS <: HList, H0 <: HList, H1 <: HList](parsers: PS)(
-      in: List[String])(
+    tokens: List[String])(
       implicit parserConstraint: *->*[Parser]#λ[PS],
       constMapper: ConstMapper.Aux[String, PS, H0],
       zipper: Zip.Aux[PS :: H0 :: HNil, H1],
@@ -50,15 +50,15 @@ object PolyFunctionsParser {
              in: List[String],
              map: Map[String, mapper.Out]): Map[String, mapper.Out] = {
       if (!in.isEmpty) {
-        val el = in.head
-        val cells = parsers.mapConst(el)
+        val token = in.head
+        val cells = parsers.mapConst(token)
         //((parsers zip cells) map polyFunction).map(singletonMap)
         loop(parsers,
              in.tail,
-             map + (el -> ((parsers zip cells) map polyFunction)))
+             map + (token -> ((parsers zip cells) map polyFunction)))
       } else map
     }
-    loop(parsers, in, Map[String, mapper.Out]())
+    loop(parsers, tokens, Map[String, mapper.Out]())
   }
 
   val out = runParsers(hParser)("Hello")
@@ -128,16 +128,34 @@ object PolyFunctionsParser {
       .map(column => runParsers(parserHList)(column) map singletonMap)
       .combineAll
 
-  val column = List("Hello",
-                    "42.0",
-                    "True",
-                    "False",
-                    "True",
-                    "True",
-                    "False",
-                    "True",
-                    "41",
-                    "42")
+  val column = List("Hello", "42.0", "True", "False", "True", "True", "False", "True", "41", "42")
   val tvhExample = histograms(hParser)(column)
   println(tvhExample)
+
+
+  /*******************************************************************************************************/
+
+  type Tweet = Int
+  type ValidTweet = scalaz.ValidationNel[String, Tweet]
+
+  type Record = String
+  type ValidRecord = scalaz.ValidationNel[String, Record]
+
+  import shapeless._, poly._
+
+  type PT[T] = scalaz.ValidationNel[String, T]
+  object toOption extends (PT ~> scala.Option) {
+    def apply[T](result: PT[T]) = result.fold({ errors => None }, { t => Some(t) })
+  }
+
+
+  //val hResult = ValidTweet :: ValidRecord :: ValidTweet :: HNil
+  import scalaz._, Scalaz._
+  val results = 23.successNel[String] :: "foo".successNel[String] :: 45.successNel[String] :: shapeless.HNil
+
+  val resultsWithError = 23.successNel[String] :: "foo".successNel[String] :: "error fetching 3th element".failureNel[Int] :: shapeless.HNil
+
+  results map toOption
+
+  resultsWithError map toOption
 }

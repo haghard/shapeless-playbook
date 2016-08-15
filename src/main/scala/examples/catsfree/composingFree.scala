@@ -91,4 +91,5 @@ object composingFree {
   val res = program.foldMap(interpreter)
   //res
 
+  //TODO: look at this example http://perevillega.com/understanding-free-monads
 }

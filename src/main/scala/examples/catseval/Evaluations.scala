@@ -1,10 +1,8 @@
 package examples.catseval
 
-import java.util.concurrent.atomic.AtomicReference
-
 import cats.Eval
-
 import scala.collection.mutable
+import java.util.concurrent.atomic.AtomicReference
 
 object Evaluations {
 
