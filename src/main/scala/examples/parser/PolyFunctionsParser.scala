@@ -148,8 +148,6 @@ object PolyFunctionsParser {
     def apply[T](result: PT[T]) = result.fold({ errors => None }, { t => Some(t) })
   }
 
-
-  //val hResult = ValidTweet :: ValidRecord :: ValidTweet :: HNil
   import scalaz._, Scalaz._
   val results = 23.successNel[String] :: "foo".successNel[String] :: 45.successNel[String] :: shapeless.HNil
 

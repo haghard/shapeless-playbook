@@ -31,7 +31,7 @@ object TypeClassParser {
     implicit val readableUser: Readable[User] = line2Readable(
         _.split(':') match {
       case Array(id, name, email) =>
-        User(id.read[Int], name.read[String], email.read[String])
+        User(id.read[Int], name.read[String], email.read[String]) //schema
       case fields =>
         throw new Exception(s"Expected fields size:3 - actual: ${fields.size}")
     })
