@@ -17,7 +17,7 @@ initialCommands in (console) := """ammonite.Main().run()"""
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.4" % "test",
-  "com.chuusai" %% "shapeless" % "2.3.1",
+  "com.chuusai" %% "shapeless" % "2.3.2",
   scalazCore, scalazConcurrent,
   "com.lihaoyi"  % "ammonite" % "0.7.0" cross CrossVersion.full
 )
@@ -26,3 +26,5 @@ libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-free" % "0.6.1",
   "co.fs2" %% "fs2-cats" % "0.1.0-SNAPSHOT"
 )
+
+//http://harrylaou.com/scala/shapeless/resources/

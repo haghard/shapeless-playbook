@@ -48,15 +48,15 @@ object PolyFunctionsParser {
     @tailrec
     def loop(parsers: PS,
              in: List[String],
-             map: Map[String, mapper.Out]): Map[String, mapper.Out] = {
+             parsedTokens: Map[String, mapper.Out]): Map[String, mapper.Out] = {
       if (!in.isEmpty) {
         val token = in.head
         val cells = parsers.mapConst(token)
         //((parsers zip cells) map polyFunction).map(singletonMap)
         loop(parsers,
              in.tail,
-             map + (token -> ((parsers zip cells) map polyFunction)))
-      } else map
+             parsedTokens + (token -> ((parsers zip cells) map polyFunction)))
+      } else parsedTokens
     }
     loop(parsers, tokens, Map[String, mapper.Out]())
   }
