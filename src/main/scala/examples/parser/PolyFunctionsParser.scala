@@ -124,9 +124,7 @@ object PolyFunctionsParser {
       ev3: Mapper.Aux[polyFunction.type, H1, H2],
       ev4: Mapper.Aux[singletonMap.type, H2, H3],
       ev5: Monoid[H3]) =
-    columns
-      .map(column => runParsers(parserHList)(column) map singletonMap)
-      .combineAll
+    columns.map(column => runParsers(parserHList)(column) map singletonMap).combineAll
 
   val column = List("Hello", "42.0", "True", "False", "True", "True", "False", "True", "41", "42")
   val tvhExample = histograms(hParser)(column)

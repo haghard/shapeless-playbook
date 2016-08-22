@@ -2,7 +2,7 @@ name := """shapeless-playbook"""
 
 version := "1.0"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
 resolvers ++= Seq(
   Resolver.sonatypeRepo("releases"),
@@ -24,7 +24,9 @@ libraryDependencies ++= Seq(
 
 libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-free" % "0.6.1",
-  "co.fs2" %% "fs2-cats" % "0.1.0-SNAPSHOT"
+  "co.fs2" %% "fs2-cats" % "0.1.0-RC1"
 )
+
+addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.8.0")
 
 //http://harrylaou.com/scala/shapeless/resources/
