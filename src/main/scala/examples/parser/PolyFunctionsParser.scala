@@ -141,9 +141,8 @@ object PolyFunctionsParser {
 
   import shapeless._, poly._
 
-  type PT[T] = scalaz.ValidationNel[String, T]
-  object toOption extends (PT ~> scala.Option) {
-    def apply[T](result: PT[T]) = result.fold({ errors => None }, { t => Some(t) })
+  object toOption extends (scalaz.ValidationNel[String, ?] ~> scala.Option) {
+    def apply[T](result: scalaz.ValidationNel[String, T]) = result.fold({ errors => None }, { t => Some(t) })
   }
 
   import scalaz._, Scalaz._
