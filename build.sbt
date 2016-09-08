@@ -23,10 +23,13 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.typelevel" %% "cats-free" % "0.6.1",
-  "co.fs2" %% "fs2-cats" % "0.1.0-RC1"
+  "org.typelevel" %% "cats-free" % "0.7.0",
+  "co.fs2" %% "fs2-cats" % "0.1.0-RC2",
+  "com.thangiee" %% "freasy-monad" % "0.1.0" // requires cats version 0.7.0+
 )
 
 addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.8.0")
+
+addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 
 //http://harrylaou.com/scala/shapeless/resources/

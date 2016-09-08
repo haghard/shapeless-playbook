@@ -1,12 +1,12 @@
 package examples.parser
 
 import cats.Monoid
-import cats.std.all._
 import cats.syntax.all._
+
+import cats.instances.all._, cats.syntax.eq._
 import shapeless.UnaryTCConstraint._
 import shapeless._
 import shapeless.ops.hlist._
-import shapeless.poly._
 
 import scala.annotation.tailrec
 import scala.util.Try
@@ -67,6 +67,11 @@ object PolyFunctionsParser {
   val outAll = runParsersAll(hParser)(List("Hello", "1.9"))
   println(outAll)
 
+  //type NT = shapeless.PolyDefns.~>[Option, ({ type λ[T] = Map[T, Long] })#λ]
+  ///*Option shapeless.PolyDefns.~> ({ type λ[T] = Map[T, Long] })#λ*/
+
+  import shapeless._, poly._
+
   /**
     * Construct a single-element map for each parsed result
     * This is:  forall T. Option[T] => Map[T, Long]
@@ -86,26 +91,21 @@ object PolyFunctionsParser {
     object typeClass extends ProductTypeClass[Monoid] {
       override def emptyProduct =
         new Monoid[HNil] {
-          def empty = HNil
-
-          def combine(a: HNil, b: HNil) = HNil
+          override def empty = HNil
+          override def combine(a: HNil, b: HNil) = HNil
         }
 
       override def product[F, T <: HList](mh: Monoid[F], mt: Monoid[T]) =
         new Monoid[F :: T] {
-          def empty = mh.empty :: mt.empty
-
-          def combine(a: F :: T, b: F :: T) =
+          override def empty = mh.empty :: mt.empty
+          override def combine(a: F :: T, b: F :: T) =
             mh.combine(a.head, b.head) :: mt.combine(a.tail, b.tail)
         }
 
-      override def project[F, G](instance: => Monoid[G],
-                                 to: F => G,
-                                 from: G => F) =
+      override def project[F, G](instance: => Monoid[G], to: F => G, from: G => F) =
         new Monoid[F] {
-          def empty = from(instance.empty)
-
-          def combine(a: F, b: F) = from(instance.combine(to(a), to(b)))
+          override def empty = from(instance.empty)
+          override def combine(a: F, b: F) = from(instance.combine(to(a), to(b)))
         }
     }
 
