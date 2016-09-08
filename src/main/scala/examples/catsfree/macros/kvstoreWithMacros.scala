@@ -65,17 +65,17 @@ object kvstoreWithMacros {
     val kvs = scala.collection.mutable.Map.empty[String, Any]
 
     def get[T](key: String): Future[Option[T]] = Future {
-      println(s"get($key)")
+      println(s"${Thread.currentThread.getName}: get($key)")
       kvs.get(key).map(_.asInstanceOf[T])
     }
 
     def put[T](key: String, value: T): Future[Unit] = Future {
-      println(s"put($key, $value)")
+      println(s"${Thread.currentThread.getName}: put($key, $value)")
       kvs(key) = value
     }
 
     def delete(key: String): Future[Unit] = Future {
-      println(s"delete($key)")
+      println(s"${Thread.currentThread.getName}: delete($key)")
       kvs.remove(key)
     }
   }
