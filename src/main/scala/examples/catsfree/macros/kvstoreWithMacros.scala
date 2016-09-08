@@ -4,19 +4,17 @@ import cats.Id
 import cats.free.Free
 import freasymonad.free
 
+import scala.concurrent.Future
+
 //examples.catsfree.macros.kvstoreWithMacros
 //https://github.com/Thangiee/Freasy-Monad
 object kvstoreWithMacros {
 
   @free trait KVStoreOps {
 
-    // as long as you define a type alias for Free
     sealed trait GrammarADT[A]
 
-    // you can use any names you like
     type KVStoreF[A] = Free[GrammarADT, A]
-
-    // and a sealed trait.
 
     // abstract methods are automatically lifted into part of the grammar ADT
     def put[T](key: String, value: T): KVStoreF[Unit]
@@ -35,11 +33,11 @@ object kvstoreWithMacros {
 
   def program: KVStoreF[Option[Int]] =
     for {
-      _ <- put("wild-cats", 2)
-      _ <- update[Int]("wild-cats", _ + 12)
-      _ <- put("tame-cats", 5)
-      n <- get[Int]("wild-cats")
-      _ <- delete("tame-cats")
+      _ <- put("key-a", 2)
+      _ <- update[Int]("key-a", _ + 12)
+      _ <- put("key-b", 5)
+      n <- get[Int]("key-c")
+      _ <- delete("key-b")
     } yield n
 
   val impureInterpreter = new KVStoreOps.Interp[Id] {
@@ -60,6 +58,27 @@ object kvstoreWithMacros {
       kvs.remove(key)
     }
   }
+
+  import scala.concurrent.ExecutionContext.Implicits.global
+
+  val impureFutureInterpreter = new KVStoreOps.Interp[Future] {
+      val kvs = scala.collection.mutable.Map.empty[String, Any]
+
+      def get[T](key: String): Future[Option[T]] = Future {
+        println(s"get($key)")
+        kvs.get(key).map(_.asInstanceOf[T])
+      }
+
+      def put[T](key: String, value: T): Future[Unit] = Future {
+        println(s"put($key, $value)")
+        kvs(key) = value
+      }
+
+      def delete(key: String): Future[Unit] = Future {
+        println(s"delete($key)")
+        kvs.remove(key)
+      }
+    }
 
   impureInterpreter.run(program)
 }
