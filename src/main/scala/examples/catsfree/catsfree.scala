@@ -4,6 +4,7 @@ import cats.{Id, ~>}
 import cats.free.Free
 import scala.collection.mutable
 
+//examples.catsfree.catsfree
 object catsfree {
 
   sealed trait KVOps[T]
@@ -36,11 +37,12 @@ object catsfree {
       _ <- vMaybe.map(v => put[T](key, f(v))).getOrElse(Free.pure(()))
     } yield ()
 
-  implicit val optionApp: cats.Apply[Option] = new cats.Apply[Option] {
+  /*implicit val optionApp: cats.Apply[Option] = new cats.Apply[Option] {
     override def ap[A, B](f: Option[A => B])(fa: Option[A]): Option[B] =
       fa.flatMap(a => f.map(ff => ff(a)))
     override def map[A, B](fa: Option[A])(f: A => B): Option[B] = fa map f
-  }
+  }*/
+  import cats.instances.all._
 
   def program: KVDsl[Option[Double]] =
     for {

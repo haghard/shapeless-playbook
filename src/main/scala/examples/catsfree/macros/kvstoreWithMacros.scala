@@ -5,6 +5,7 @@ import cats.free.Free
 import freasymonad.free
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 //examples.catsfree.macros.kvstoreWithMacros
 //https://github.com/Thangiee/Freasy-Monad
@@ -29,6 +30,7 @@ object kvstoreWithMacros {
         _ <- vMaybe.map(v => put[T](key, f(v))).getOrElse(Free.pure(()))
       } yield ()
   }
+
   import KVStoreOps.ops._
 
   def program: KVStoreF[Option[Int]] =
@@ -59,26 +61,29 @@ object kvstoreWithMacros {
     }
   }
 
-  import scala.concurrent.ExecutionContext.Implicits.global
-
   val impureFutureInterpreter = new KVStoreOps.Interp[Future] {
-      val kvs = scala.collection.mutable.Map.empty[String, Any]
+    val kvs = scala.collection.mutable.Map.empty[String, Any]
 
-      def get[T](key: String): Future[Option[T]] = Future {
-        println(s"get($key)")
-        kvs.get(key).map(_.asInstanceOf[T])
-      }
-
-      def put[T](key: String, value: T): Future[Unit] = Future {
-        println(s"put($key, $value)")
-        kvs(key) = value
-      }
-
-      def delete(key: String): Future[Unit] = Future {
-        println(s"delete($key)")
-        kvs.remove(key)
-      }
+    def get[T](key: String): Future[Option[T]] = Future {
+      println(s"get($key)")
+      kvs.get(key).map(_.asInstanceOf[T])
     }
 
+    def put[T](key: String, value: T): Future[Unit] = Future {
+      println(s"put($key, $value)")
+      kvs(key) = value
+    }
+
+    def delete(key: String): Future[Unit] = Future {
+      println(s"delete($key)")
+      kvs.remove(key)
+    }
+  }
+
+
+  import cats.instances.all._
+  import cats.syntax.flatMap._
+
   impureInterpreter.run(program)
+  impureFutureInterpreter.run(program)
 }
