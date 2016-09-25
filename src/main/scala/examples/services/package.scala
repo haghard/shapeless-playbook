@@ -19,39 +19,34 @@ package object services {
 
   final case class HostNotFoundException(msg: String) extends AppException(msg)
 
-  type UserId = Long
-  type AddressId = Long
-
-  case class User(userId: UserId, addressId: AddressId)
-
-  case class Address(addressId: AddressId)
+  case class Address(addressId: Long)
+  case class User(userId: Long, addressId: Long)
 
   @simulacrum.typeclass trait Effect[F[_]] {
     def from[A](a: ⇒ A): F[A]
   }
 
-  implicit def futureCapture(implicit ec: ExecutionContext): Effect[Future] =
+  implicit def futureEffect(implicit ec: ExecutionContext): Effect[Future] =
     new Effect[Future] {
       override def from[A](a: => A): Future[A] = Future(a)(ec)
     }
 
-  implicit val taskCapture: Effect[Task] =
+  implicit val taskEffect: Effect[Task] =
     new Effect[Task] {
       override def from[A](a: => A): Task[A] = Task.evalOnce(a)
     }
 
-  implicit val tryCapture: Effect[Try] =
+  implicit val tryEffect: Effect[Try] =
     new Effect[Try] {
       override def from[A](a: => A): Try[A] = Try(a)
     }
 
   import cats.{Functor, Foldable}
   import cats.implicits._
-  /*implicit*/
-  case class FGOps[F[_] : Functor, G[_] : Foldable, A](fa: F[G[A]]) {
-    def toXor[L](e: L): F[L Xor A] =
+  implicit class FGOps[F[_] : Functor, G[_] : Foldable, A](fa: F[G[A]]) {
+    def xor[L](ex: L): F[L Xor A] =
       Functor[F].map(fa) { g =>
-        Foldable[G].foldLeft[A, L Xor A](g, e.left[A])((_, b) => b.right[L])
+        Foldable[G].foldLeft[A, L Xor A](g, ex.left[A])((_, b) => b.right[L])
       }
   }
 }
