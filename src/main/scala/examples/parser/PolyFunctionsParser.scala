@@ -14,6 +14,9 @@ import scala.util.Try
 //https://github.com/lancelet/typequest/blob/master/src/main/scala/typequest/SimpleParse.scala
 
 //examples.parser.PolyFunctionsParser
+
+//Take a look at http://www.hyperlambda.com/posts/hlist-map-in-scala/
+//
 object PolyFunctionsParser {
 
   case class Parser[T](parse: String => Option[T])

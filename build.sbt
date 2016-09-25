@@ -9,7 +9,7 @@ resolvers ++= Seq(
   Resolver.sonatypeRepo("snapshots")
 )
 
-val scalazVersion = "7.1.5"
+val scalazVersion = "7.2.2"
 val scalazCore = "org.scalaz" %% "scalaz-core" % scalazVersion
 val scalazConcurrent = "org.scalaz" %% "scalaz-concurrent" % scalazVersion
 
@@ -23,8 +23,8 @@ libraryDependencies ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.typelevel" %% "cats-free" % "0.7.0",
-  "co.fs2" %% "fs2-cats" % "0.1.0-RC2",
+  "org.typelevel" %% "cats-free" % "0.7.2",
+  "co.fs2" %% "fs2-cats" % "0.1.0",
   "com.thangiee" %% "freasy-monad" % "0.1.0" // requires cats version 0.7.0+
 )
 
