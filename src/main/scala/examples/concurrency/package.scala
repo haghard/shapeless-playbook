@@ -11,7 +11,7 @@ import fs2.{Task, async}
   * or returns a continuation
   *
   **/
-package object fs2computations {
+package object concurrency {
 
   val nums = Vector.range[Int](1, 10)
 
