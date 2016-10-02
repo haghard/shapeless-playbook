@@ -3,7 +3,14 @@ package examples.services
 import scala.concurrent.{Await, ExecutionContext, Future}
 
 /**
-  * https://www.scala-exercises.org/cats/semigroup
+  * Abstracting over the return type
+  * Abstracting over implementations
+  * TODO: Add cake
+  *
+  *
+  * https://t.co/CWQyyhgTb8
+  *
+  * Cats https://www.scala-exercises.org/cats/semigroup
   *
   * runMain examples.services.Runner
   *
@@ -48,6 +55,7 @@ class μservice[F[_] : Effect : cats.Functor] {
 }
 
 object μservice {
+
   def apply[F[_] : Effect : cats.Monad : cats.RecursiveTailRecM]: μservice[F] = new μservice[F]
 }
 
@@ -65,7 +73,6 @@ object Runner extends App {
 
 
   //Abstracting over the return type
-
   for {
     a <- μservice[Future].fetchUser(101l)
     b <- μservice[Future].fetchAddress(24l)

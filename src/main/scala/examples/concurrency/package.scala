@@ -16,32 +16,30 @@ package object concurrency {
   val nums = Vector.range[Int](1, 10)
 
   implicit val S =
-    fs2.Strategy.fromFixedDaemonPool(4, "cpu-bound-computations")
+    fs2.Strategy.fromFixedDaemonPool(4, "concurrent-executions")
 
   val T = implicitly[Async[Task]]
 
-  val s = async.mutable.Semaphore[Task](0).unsafeRun()
+  val semaphore = async.mutable.Semaphore[Task](0).unsafeRun()
 
   val longs = nums.map(_.toLong.abs)
   val longsRev = longs.reverse
 
   val task: Task[Unit] = for {
-    // N parallel incrementing tasks and N parallel decrementing tasks
+  // N parallel incrementing tasks and N parallel decrementing tasks
     decrements <- Task.start {
-                   //T.traverse(longs) { v =>
-                   T.parallelTraverse(longs) { v =>
-                     s.decrementBy(v)
-                       .map(_ => println(s"${Thread.currentThread.getName} decrement:$v"))
-                   }
-                 }
+      T.parallelTraverse(longs) { v =>
+        semaphore.decrementBy(v)
+          .map(_ => println(s"${Thread.currentThread.getName} decrement:$v"))
+      }
+    }
 
     increments <- Task.start {
-                   //T.traverse(longsRev) { v =>
-                   T.parallelTraverse(longsRev) { v =>
-                     s.incrementBy(v)
-                       .map(_ => println(s"${Thread.currentThread.getName} increment:$v"))
-                   }
-                 }
+      T.parallelTraverse(longsRev) { v =>
+        semaphore.incrementBy(v)
+          .map(_ => println(s"${Thread.currentThread.getName} increment:$v"))
+      }
+    }
 
     _ <- decrements: Task[Vector[Unit]]
     _ <- increments: Task[Vector[Unit]]
@@ -52,34 +50,37 @@ package object concurrency {
   /******************************************************************************************/
   type TF = String => Task[String]
 
-  def relatedTasks: Task[(TF, TF)] =
+  def raceBoth(la: Long, lb: Long): Task[(TF, TF)] =
     for {
-      ref1 ← Async.ref[Task, String]
-      ref2 ← Async.ref[Task, String]
+      refA ← Async.ref[Task, String]
+      refB ← Async.ref[Task, String]
     } yield {
-      val one = (str: String) => {
-        println(s"start computation: $str")
+      val a = (str: String) => {
         for {
-          _ ← (ref1 setPure str)
-          _ = Thread.sleep(3000)
-          r2 ← ref2.get
+          _ ← (refA setPure str)
+          _ = {
+            Thread.sleep(la)
+            println(s"${Thread.currentThread().getName}: A - $str")
+          }
+          r2 ← refB.get
         } yield str ++ r2
       }
 
-      val two = (str: String) => {
-        println(s"start computations: $str")
+      val b = (str: String) => {
         for {
-          _ ← (ref2 setPure str)
-          _ = Thread.sleep(2000)
-          r1 ← ref1.get
+          _ ← (refB setPure str)
+          _ = {
+            Thread.sleep(lb)
+            println(s"${Thread.currentThread().getName}: B - $str")
+          }
+          r1 ← refA.get
         } yield str ++ r1
       }
 
-      (one, two)
+      (a, b)
     }
 
-  val start = System.currentTimeMillis
-  relatedTasks.flatMap {
+  raceBoth(100,200).flatMap {
     case (a, b) => a("a").async race b("b").async
   }.unsafeRun
 
@@ -94,7 +95,9 @@ package object concurrency {
           s"${Thread.currentThread.getName}: latency: ${(System.currentTimeMillis - start)} $r")
     }))
   */
+
   /*********************************************/
+  //Makes every iteration async, like scala Future
   def fib(n: Int): Task[Int] = {
     if (n < 2) Task now 1
     else
@@ -106,13 +109,16 @@ package object concurrency {
       }
   }
 
+  //defer compuation
   def fib2(n: Int): Eval[Int] = {
     if (n < 2) Eval now 1
     else
-    for {
-      x ← Eval.defer(fib2(n - 1))
-      y ← Eval.defer(fib2(n - 2))
-    } yield { x + y }
+      for {
+        x ← Eval.defer(fib2(n - 1))
+        y ← Eval.defer(fib2(n - 2))
+      } yield {
+        x + y
+      }
   }
 
   fib(15).unsafeRun
@@ -131,7 +137,7 @@ package object concurrency {
         case (m, 0) => step(m - 1, 1, stack)
         case (m, n) => for {
           internalRec <- step(m, n - 1, stack)
-          result      <- step(m - 1, internalRec, stack)
+          result <- step(m - 1, internalRec, stack)
         } yield result
       }
 

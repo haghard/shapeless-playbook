@@ -28,12 +28,9 @@ package object parser {
     }.toOption
   }
 
-
-
   import scala.util.Try
   import shapeless._
   import scalaz._, Scalaz._
-
 
   trait Parser[A] {
     def apply(line: String): Option[A]
