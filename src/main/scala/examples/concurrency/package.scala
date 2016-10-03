@@ -97,6 +97,9 @@ package object concurrency {
   */
 
   /*********************************************/
+
+  import annotation.tailrec
+
   //Makes every iteration async, like scala Future
   def fib(n: Int): Task[Int] = {
     if (n < 2) Task now 1
@@ -109,8 +112,8 @@ package object concurrency {
       }
   }
 
-  //defer compuation
-  def fib2(n: Int): Eval[Int] = {
+  //defer computations
+  def fib2(n: Int): Eval[BigInt] = {
     if (n < 2) Eval now 1
     else
       for {
@@ -122,16 +125,57 @@ package object concurrency {
   }
 
   def fib3(n: Int): BigInt = {
-    @scala.annotation.tailrec
-    def loop(n: Int, start: BigInt, res: BigInt): BigInt =
-    	if(n == 0) res else loop(n-1, res, start + res)
+    @tailrec
+    def loop(n: Int, start: BigInt, acc: BigInt): BigInt =
+    	if(n == 0) acc else loop(n - 1, acc, start + acc)
 
     loop(n, 0, 1)
+  }
+
+  def factorial0(n: Int) = {
+    var acc = 1
+    (1 to n).foreach { i => acc *= i }
+    acc
+  }
+
+  def factorial1(n: Int): Int = {
+    if (n == 0) 1 else n * factorial1(n - 1)
+  }
+
+  def factorial2(n: Int) = {
+    @tailrec
+    def loop(acc: Int, n: Int): Int = {
+      if(n == 0) acc else loop(acc * n, n - 1)
+    }
+    loop(1, n)
+  }
+
+
+  //operation complexity: O(n^n) (squared)
+  def insertionSort[T: Ordering](xs: List[T]): List[T] = {
+    def insert[T: Ordering](x: T, xs: List[T]): List[T] = {
+        val ord = implicitly[Ordering[T]]
+        xs match {
+          case Nil => List(x)
+          case head :: tail =>
+            if (ord.lteq(x, head)) x :: xs
+            else  head :: insert(x, tail)
+        }
+      }
+
+    xs match {
+      case Nil => Nil
+      case head :: tail => insert(head, insertionSort(tail))
+    }
   }
 
   fib(15).unsafeRun
   fib2(15).value
   fib3(15)
+
+  factorial2(5)
+
+  insertionSort(6 :: 7 :: 9 :: 45 :: 13 :: Nil)
 
 
   def ackermannO(m: Int, n: Int, maxStack: Int = 1 << 9): Eval[Int] = {
