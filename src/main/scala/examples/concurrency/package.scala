@@ -121,8 +121,17 @@ package object concurrency {
       }
   }
 
+  def fib3(n: Int): BigInt = {
+    @scala.annotation.tailrec
+    def loop(n: Int, start: BigInt, res: BigInt): BigInt =
+    	if(n == 0) res else loop(n-1, res, start + res)
+
+    loop(n, 0, 1)
+  }
+
   fib(15).unsafeRun
   fib2(15).value
+  fib3(15)
 
 
   def ackermannO(m: Int, n: Int, maxStack: Int = 1 << 9): Eval[Int] = {
