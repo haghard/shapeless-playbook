@@ -152,20 +152,19 @@ package object concurrency {
 
 
   //operation complexity: O(n^n) (squared)
-  def insertionSort[T: Ordering](xs: List[T]): List[T] = {
-    def insert[T: Ordering](x: T, xs: List[T]): List[T] = {
-        val ord = implicitly[Ordering[T]]
+  def insertionSort[T](xs: List[T])(implicit ord: Ordering[T]): List[T] = {
+    def insert(x: T, xs: List[T], ord: Ordering[T]): List[T] = {
         xs match {
           case Nil => List(x)
           case head :: tail =>
             if (ord.lteq(x, head)) x :: xs
-            else  head :: insert(x, tail)
+            else  head :: insert(x, tail, ord)
         }
       }
 
     xs match {
       case Nil => Nil
-      case head :: tail => insert(head, insertionSort(tail))
+      case head :: tail => insert(head, insertionSort(tail), ord)
     }
   }
 

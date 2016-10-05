@@ -1,5 +1,6 @@
 package examples
 
+//http://fommil.github.io/scalax15/
 //https://gist.github.com/milessabin/25b7b669b5a9ac051a71
 package object enums {
 
@@ -58,4 +59,22 @@ package object enums {
 
   assert((WeekDay.values filter isWorkingDay) == Set(Mon, Tue, Wed, Thu, Fri))
   assert(!isWeekend(Mon)) //
+
+
+  import shapeless.tag, tag.@@
+
+  trait DayOfWeek
+  val dayOfWeek = tag[DayOfWeek]
+  val Tuesday = dayOfWeek("tuesday" -> false)
+  val Monday = dayOfWeek("monday" -> false)
+  val Sunday = dayOfWeek("sunday" -> true)
+
+  def whetherWeekend(day: (String, Boolean) @@ DayOfWeek): Boolean = {
+    println(s"check on weekend ${day._1}")
+    //println(s"${first.getClass} ${first.getClass}")
+    if (day._2) true else false
+  }
+
+  whetherWeekend(Sunday)
+
 }
