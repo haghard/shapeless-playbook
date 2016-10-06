@@ -34,4 +34,6 @@ libraryDependencies ++= Seq(
 addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.8.0")
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)
 
+//-Xlog-implicits
+
 //http://harrylaou.com/scala/shapeless/resources/
