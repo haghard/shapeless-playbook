@@ -21,7 +21,7 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.4" % "test",
   "com.chuusai" %% "shapeless" % "2.3.2",
   scalazCore, scalazConcurrent,
-  "com.lihaoyi"  % "ammonite" % "0.7.7" cross CrossVersion.full
+  "com.lihaoyi"  % "ammonite" % "0.7.8" cross CrossVersion.full
 )
 
 libraryDependencies ++= Seq(
