@@ -11,7 +11,8 @@ package object common {
 
   case class Record(a: Int, b: Int, c: Double, d: String)
 
-  def fromJdbc[T, Repr <: HList](row: Array[Any])(implicit gen: Generic.Aux[T, Repr], ft: FromTraversable[Repr]): Option[T] = {
+  def fromJdbc[T, Repr <: HList](row: Array[Any])
+                                (implicit gen: Generic.Aux[T, Repr], ft: FromTraversable[Repr]): Option[T] = {
     row.toHList[Repr].map(gen.from _)
   }
 
@@ -40,6 +41,6 @@ package object common {
   val row: Array[Any] = Array(1, 2, 67.89, "abc")
 
   fromJdbc[Record, Int :: Int :: Double :: String :: HNil](row)
-  fromJdbc(1,2,5.7,"asdas")(Record(_, _, _, _))
 
+  fromJdbc(1,2,5.7,"asdas")(Record(_, _, _, _))
 }

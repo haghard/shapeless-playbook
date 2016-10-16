@@ -42,23 +42,18 @@ object PolyFunctionsParser {
     (parsers zip cells) map polyFunction
   }
 
-  def runParsersAll[PS <: HList, H0 <: HList, H1 <: HList](parsers: PS)(
-    tokens: List[String])(
-      implicit parserConstraint: *->*[Parser]#λ[PS],
-      constMapper: ConstMapper.Aux[String, PS, H0],
-      zipper: Zip.Aux[PS :: H0 :: HNil, H1],
-      mapper: Mapper[polyFunction.type, H1]): Map[String, mapper.Out] = {
+  def runParsersAll[PS <: HList, H0 <: HList, H1 <: HList](parsers: PS)(tokens: List[String])
+                                                          (implicit parserConstraint: *->*[Parser]#λ[PS],  constMapper: ConstMapper.Aux[String, PS, H0],
+                                                           zipper: Zip.Aux[PS :: H0 :: HNil, H1],
+                                                           mapper: Mapper[polyFunction.type, H1]): Map[String, mapper.Out] = {
     @tailrec
-    def loop(parsers: PS,
-             in: List[String],
+    def loop(parsers: PS, in: List[String],
              parsedTokens: Map[String, mapper.Out]): Map[String, mapper.Out] = {
       if (!in.isEmpty) {
         val token = in.head
         val cells = parsers.mapConst(token)
         //((parsers zip cells) map polyFunction).map(singletonMap)
-        loop(parsers,
-             in.tail,
-             parsedTokens + (token -> ((parsers zip cells) map polyFunction)))
+        loop(parsers, in.tail, parsedTokens + (token -> ((parsers zip cells) map polyFunction)))
       } else parsedTokens
     }
     loop(parsers, tokens, Map[String, mapper.Out]())
@@ -79,7 +74,7 @@ object PolyFunctionsParser {
     * Construct a single-element map for each parsed result
     * This is:  forall T. Option[T] => Map[T, Long]
     */
-  object singletonMap extends (Option ~> ({ type λ[T] = Map[T, Long] })#λ) {
+  object singletonMap extends (Option ~> Map[?, Long]) {
     def apply[T](x: Option[T]) = x match {
       case Some(v) => Map(v -> 1L)
       case None => Map.empty

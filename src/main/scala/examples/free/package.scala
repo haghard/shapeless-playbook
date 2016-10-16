@@ -12,8 +12,7 @@ package object free {
   //Algebra
   sealed trait Console[T]
   case class WriteValue[T](result: T) extends Console[T]
-  case class ReadValue[T](prompt: String, parse: String => T)
-      extends Console[T]
+  case class ReadValue[T](prompt: String, parse: String => T) extends Console[T]
 
   type Dsl[T] = Free[Console, T]
 

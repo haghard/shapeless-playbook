@@ -83,7 +83,7 @@ object composingFree {
       value <- readDouble
       _ <- put[Double](key, value)
       x <- get[Double](key)
-    } yield (x)
+    } yield x
   }
 
   val interpreter: AppDsl ~> Id = ConsoleInterpreter or MapInterpreter
