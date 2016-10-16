@@ -19,18 +19,6 @@ package object stages {
     def weight: Int
   }
 
-
-  object polyFunction extends Poly1 {
-      implicit def parse[T] = at[T, String)] {
-        case (parser, line) => (parser parse line)
-      }
-    }
-
-  object toOption extends ( ? ~> scala.Option) {
-      def apply[T](result: scalaz.ValidationNel[String, T]) = result.fold({ errors => None }, { t => Some(t) })
-    }
-
-
   implicit class hlist2Relation[A <: HList, B <: HList](dependencies: A)(implicit ev: StageComapped[A, B]) {
     def fanOut[R](f: B => Stage[R]) = ???
       //dependencies.map
