@@ -58,7 +58,7 @@ class μservice[F[_] : Effect : cats.Functor] {
 
 object μservice {
 
-  def apply[F[_] : Effect : cats.Monad /*: cats.RecursiveTailRecM*/]: μservice[F] = new μservice[F]
+  def apply[F[_] : Effect : cats.Monad]: μservice[F] = new μservice[F]
 }
 
 object Runner extends App {
@@ -76,6 +76,7 @@ object Runner extends App {
 
   //Abstracting over the return type
 
+  ¸¸
   for {
     a <- μservice[Future].fetchUser(101l)
     b <- μservice[Future].fetchAddress(24l)

@@ -45,13 +45,12 @@ package object services {
       override def from[A](a: => A): Try[A] = Try(a)
     }
 
+  //example Future[Either[TimeoutException User]]
+  //Task[Either[TimeoutException User]]
   implicit class FGOps[F[_] : Functor, G[_] : Foldable, A](fa: F[G[A]]) {
     def xor[L](ex: L): F[L Either A] =
       Functor[F].map(fa) { g =>
-        Foldable[G].foldLeft[A, L Either A](g, { println("Or" + ex); Left[L,A](ex)}) { (_, b) =>
-          println(b)
-          Right[L,A](b)
-        }
+        Foldable[G].foldLeft[A, L Either A](g, Left[L,A](ex)) { (_, b) => Right[L,A](b) }
       }
   }
 }
