@@ -76,7 +76,6 @@ object Runner extends App {
 
   //Abstracting over the return type
 
-  ¸¸
   for {
     a <- μservice[Future].fetchUser(101l)
     b <- μservice[Future].fetchAddress(24l)
