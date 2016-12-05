@@ -2,7 +2,7 @@ package examples.catsfree.macros
 
 import cats.Id
 import cats.free.Free
-import freasymonad.free
+import freasymonad.cats.free
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global

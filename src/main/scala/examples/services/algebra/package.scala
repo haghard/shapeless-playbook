@@ -1,25 +1,25 @@
 package examples.services
 
-import cats.data.{XorT, Xor}
+import cats.data.EitherT
 
 package object algebra {
   import cats._
 
   sealed abstract class ServiceOp[A] extends Product with Serializable
-  final case class FetchUser(userId: Long) extends ServiceOp[TimeoutException Xor User]
-  final case class FetchAddress(addressId: Long) extends ServiceOp[TimeoutException Xor Address]
+  final case class FetchUser(userId: Long) extends ServiceOp[TimeoutException Either User]
+  final case class FetchAddress(addressId: Long) extends ServiceOp[TimeoutException Either Address]
 
   type ServiceIO[A] = cats.free.Free[ServiceOp, A]
 
   object ServiceOps {
-    def fetchUser(userId: Long): ServiceIO[TimeoutException Xor User] =
+    def fetchUser(userId: Long): ServiceIO[TimeoutException Either User] =
       cats.free.Free.liftF(FetchUser(userId))
 
-    def fetchAddress(addressId: Long): ServiceIO[TimeoutException Xor Address] =
+    def fetchAddress(addressId: Long): ServiceIO[TimeoutException Either Address] =
       cats.free.Free.liftF(FetchAddress(addressId))
   }
 
-  def interpreter[M[_] : Effect : Monad : RecursiveTailRecM](implicit ins: μservice[M]): ServiceOp ~> M =
+  def interpreter[M[_] : Effect : Monad /*: RecursiveTailRecM*/](implicit ins: μservice[M]): ServiceOp ~> M =
     new (ServiceOp ~> M) {
       override def apply[A](fa: ServiceOp[A]): M[A] = {
         val result = fa match {
@@ -30,9 +30,9 @@ package object algebra {
       }
     }
 
-  def fetchBoth(userId: Long): ServiceIO[TimeoutException Xor (User, Address)] =
+  def fetchBoth(userId: Long): ServiceIO[TimeoutException Either (User, Address)] =
     (for {
-      user <- XorT[ServiceIO, TimeoutException, User](ServiceOps.fetchUser(userId))
-      address <- XorT[ServiceIO, TimeoutException, Address](ServiceOps.fetchAddress(user.addressId))
+      user <-  EitherT[ServiceIO, TimeoutException, User](ServiceOps.fetchUser(userId))
+      address <- EitherT[ServiceIO, TimeoutException, Address](ServiceOps.fetchAddress(user.addressId))
     } yield (user, address)).value
 }

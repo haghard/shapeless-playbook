@@ -1,5 +1,6 @@
 package examples.services
 
+import examples.services
 import scala.concurrent.{Await, ExecutionContext, Future}
 
 /**
@@ -16,47 +17,48 @@ import scala.concurrent.{Await, ExecutionContext, Future}
   *
   */
 class μservice[F[_] : Effect : cats.Functor] {
-  import cats.data.Xor
   import cats.implicits._
+  import cats.syntax.either._
+  import cats.instances.either._
 
-  val fetchUser: Service[F, Long, TimeoutException Xor User] =
+  val fetchUser: Service[F, Long, TimeoutException Either User] =
     (id: Long) =>
       examples.services.Effect[F].from(scala.util.Try(fetchRemoteUser(id))) //F[scala.util.Try[User]]
         .xor(TimeoutException(s"User $id fetch timeout"))
 
-  val fetchAddress: Service[F, Long, TimeoutException Xor Address] =
+  val fetchAddress: Service[F, Long, TimeoutException Either Address] =
     (id: Long) =>
       examples.services.Effect[F].from(scala.util.Try(fetchRemoteAddress(id))) //F[scala.util.Try[Address]]
-        .xor(TimeoutException(s"Address $id fetch timeout"))
+        .xor(services.TimeoutException(s"Address $id fetch timeout"))
 
-  val fetchOptionUser: Service[F, Long, NotFound Xor User] =
+  val fetchOptionUser: Service[F, Long, NotFound Either User] =
     (id: Long) =>
       examples.services.Effect[F].from(Option(fetchRemoteUser(id))) //F[Option[User]]
         .xor(NotFound(s"User $id not found"))
 
-  val fetchOptionAddress: Service[F, Long, NotFound Xor Address] =
+  val fetchOptionAddress: Service[F, Long, NotFound Either Address] =
     (id: Long) =>
       examples.services.Effect[F].from(Option(fetchRemoteAddress(id))) //F[Option[Address]]
         .xor(NotFound(s"Address $id not found"))
 
   private def fetchRemoteUser(id: Long): User = {
+    println(Thread.currentThread.getName)
     //throw new Exception("Error user fetch")
     //null
-    println(Thread.currentThread.getName)
     User(userId = id, addressId = 101l)
   }
 
   private def fetchRemoteAddress(addressId: Long): Address = {
+    println(Thread.currentThread.getName)
     //throw new Exception("Error address fetch")
     //null
-    println(Thread.currentThread.getName)
     Address(addressId)
   }
 }
 
 object μservice {
 
-  def apply[F[_] : Effect : cats.Monad : cats.RecursiveTailRecM]: μservice[F] = new μservice[F]
+  def apply[F[_] : Effect : cats.Monad /*: cats.RecursiveTailRecM*/]: μservice[F] = new μservice[F]
 }
 
 object Runner extends App {
@@ -73,13 +75,13 @@ object Runner extends App {
 
 
   //Abstracting over the return type
+
   for {
     a <- μservice[Future].fetchUser(101l)
     b <- μservice[Future].fetchAddress(24l)
     //a <- μservice[Future].fetchOptionAddress(101l)
     //b <- μservice[Future].fetchOptionAddress(24l)
   } yield println(a, b)
-
 
   //Abstracting over implementations
   import algebra._

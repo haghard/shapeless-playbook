@@ -119,9 +119,7 @@ package object concurrency {
       for {
         x ← Eval.defer(fib2(n - 1))
         y ← Eval.defer(fib2(n - 2))
-      } yield {
-        x + y
-      }
+      } yield (x + y)
   }
 
   def fib3(n: Int): BigInt = {

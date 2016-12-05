@@ -1,12 +1,16 @@
 package examples
 
-import cats.data.Xor
 import monix.eval.Task
-
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
+import scala.util.{Success, Try}
 
 package object services {
+  import cats.{Functor, Foldable}
+  import cats.implicits._
+  import cats.syntax.either._
+  import cats.instances.either._
+
+
   type Service[F[_], A, B] = A ⇒ F[B]
 
   sealed abstract class AppException(msg: String) extends Product with Serializable
@@ -41,12 +45,13 @@ package object services {
       override def from[A](a: => A): Try[A] = Try(a)
     }
 
-  import cats.{Functor, Foldable}
-  import cats.implicits._
   implicit class FGOps[F[_] : Functor, G[_] : Foldable, A](fa: F[G[A]]) {
-    def xor[L](ex: L): F[L Xor A] =
+    def xor[L](ex: L): F[L Either A] =
       Functor[F].map(fa) { g =>
-        Foldable[G].foldLeft[A, L Xor A](g, ex.left[A])((_, b) => b.right[L])
+        Foldable[G].foldLeft[A, L Either A](g, { println("Or" + ex); Left[L,A](ex)}) { (_, b) =>
+          println(b)
+          Right[L,A](b)
+        }
       }
   }
 }
