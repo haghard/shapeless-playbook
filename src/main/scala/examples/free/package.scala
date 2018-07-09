@@ -25,8 +25,7 @@ package object free {
     def apply[F[_]: Interpretator] = implicitly[Interpretator[F]]
 
     private[Interpretator] def nat[F[_], G[_], E <: Interpretator[F]](
-        implicit E: E,
-        G: Monad[G]) = new (F ~> G) {
+        implicit E: E, G: Monad[G]) = new (F ~> G) {
       override def apply[A](console: F[A]): G[A] =
         (G.pure(E evaluate console))
     }
@@ -140,4 +139,8 @@ object FreeApplication extends App {
   println("★ ★ ★ InputOutputProgram with Task as an effect ★ ★ ★")
   val res3 = InputOutputProgram.foldMap(Task).unsafePerformSyncAttempt
   println("> " + res3)
+
+
+  productH(1,2,3)
+
 }

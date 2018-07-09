@@ -42,14 +42,16 @@ class μservice[F[_] : Effect : cats.Functor] {
         .xor(NotFound(s"Address $id not found"))
 
   private def fetchRemoteUser(id: Long): User = {
-    println(Thread.currentThread.getName)
+    Thread.sleep(1000)
+    println(Thread.currentThread.getName + "-fetchRemoteUser")
     //throw new Exception("Error user fetch")
     //null
     User(userId = id, addressId = 101l)
   }
 
   private def fetchRemoteAddress(addressId: Long): Address = {
-    println(Thread.currentThread.getName)
+    Thread.sleep(500)
+    println(Thread.currentThread.getName + "-fetchRemoteAddress")
     //throw new Exception("Error address fetch")
     //null
     Address(addressId)
@@ -73,9 +75,16 @@ object Runner extends App {
   //val b = MicroServices[monix.eval.Task].fetchUser(101l)
   //val c = MicroServices[scala.util.Try].fetchUser(111l)
 
-
   //Abstracting over the return type
 
+  //Run in parallel
+  val futureResult = Applicative[Future].map2(
+    μservice[Future].fetchUser(101l),
+    μservice[Future].fetchAddress(24l)
+  ) { case (user, address) => println(user, address) }
+
+
+  /*
   for {
     a <- μservice[Future].fetchUser(101l)
     b <- μservice[Future].fetchAddress(24l)
@@ -86,7 +95,8 @@ object Runner extends App {
   //Abstracting over implementations
   import algebra._
   implicit val M = μservice[Future]
-  val futureResult = fetchBoth(201l).foldMap(interpreter[Future])
+  val futureResult = fetchBoth(201l).foldMap(interpreter[Future])*/
+
   import scala.concurrent.duration._
-  println(Await.result(futureResult, 3 second))
+  println(Await.result(futureResult, 5 second))
 }

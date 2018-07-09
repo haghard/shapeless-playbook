@@ -19,7 +19,7 @@ package object algebra {
       cats.free.Free.liftF(FetchAddress(addressId))
   }
 
-  def interpreter[M[_] : Effect : Monad /*: RecursiveTailRecM*/](implicit ins: μservice[M]): ServiceOp ~> M =
+  def interpreter[M[_] : Effect : Monad](implicit ins: μservice[M]): ServiceOp ~> M =
     new (ServiceOp ~> M) {
       override def apply[A](fa: ServiceOp[A]): M[A] = {
         val result = fa match {
@@ -32,7 +32,7 @@ package object algebra {
 
   def fetchBoth(userId: Long): ServiceIO[TimeoutException Either (User, Address)] =
     (for {
-      user <-  EitherT[ServiceIO, TimeoutException, User](ServiceOps.fetchUser(userId))
+      user <- EitherT[ServiceIO, TimeoutException, User](ServiceOps.fetchUser(userId))
       address <- EitherT[ServiceIO, TimeoutException, Address](ServiceOps.fetchAddress(user.addressId))
     } yield (user, address)).value
 }

@@ -2,7 +2,7 @@ name := """shapeless-playbook"""
 
 version := "1.0"
 
-scalaVersion := "2.12.0"
+scalaVersion := "2.12.6"
 
 resolvers ++= Seq(
   Resolver.sonatypeRepo("releases"),
@@ -19,9 +19,9 @@ initialCommands in (console) := """ammonite.Main().run()"""
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.1" % "test",
-  "com.chuusai" %% "shapeless" % "2.3.2",
-  scalazCore, scalazConcurrent,
-  "com.lihaoyi" % "ammonite" % "COMMIT-057440b" cross CrossVersion.full //0.8.0
+  "com.chuusai" %% "shapeless" % "2.3.3",
+  scalazCore, scalazConcurrent
+  //"com.lihaoyi" % "ammonite" % "COMMIT-057440b" cross CrossVersion.full //0.8.0
 )
 
 libraryDependencies ++= Seq(

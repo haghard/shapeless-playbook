@@ -1,15 +1,13 @@
 package examples
 
 import monix.eval.Task
+
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Success, Try}
+import scala.util.Try
 
 package object services {
-  import cats.{Functor, Foldable}
-  import cats.implicits._
-  import cats.syntax.either._
-  import cats.instances.either._
 
+  import cats.{Foldable, Functor}
 
   type Service[F[_], A, B] = A ⇒ F[B]
 
@@ -24,6 +22,7 @@ package object services {
   final case class HostNotFoundException(msg: String) extends AppException(msg)
 
   case class Address(addressId: Long)
+
   case class User(userId: Long, addressId: Long)
 
   @simulacrum.typeclass trait Effect[F[_]] {
@@ -45,12 +44,39 @@ package object services {
       override def from[A](a: => A): Try[A] = Try(a)
     }
 
-  //example Future[Either[TimeoutException User]]
-  //Task[Either[TimeoutException User]]
+  /*
+  Functor[Future].map(Future(Success(0))) { g =>
+    Foldable[Try].foldLeft[Int, String Either Int](g, Left("error")) { (_, b) => Right(b) }
+  }
+
+  def call: Future[Try[Int]] = Future(Failure(new Exception("some error")))
+    //Future(Success(0))
+
+  Functor[Future].map(call) { g =>
+    Foldable[Try].foldLeft[Int, String Either Int](g, Left("error")) { (error, b) =>
+      println(error)
+      Right(b)
+    }
+  }*/
+
+  /*Functor[Future].map(call) { g =>
+    cats.data.Validated.fromTry(g).toEither
+  }*/
+
+  //Traverse[Try].traverse(g) { r => Right(r) }
+
+  //Foldable[Try].fold(g)(Monoid[Int])
+
+  //Foldable[Try].fo.foldLeft[Int, String Either Int](g, Left("error")) { (_, b) => Right(b) }
+
+
+  //example Future[Try[User]]
+  //or      Task[Try[User]]
   implicit class FGOps[F[_] : Functor, G[_] : Foldable, A](fa: F[G[A]]) {
     def xor[L](ex: L): F[L Either A] =
       Functor[F].map(fa) { g =>
-        Foldable[G].foldLeft[A, L Either A](g, Left[L,A](ex)) { (_, b) => Right[L,A](b) }
+        Foldable[G].foldLeft[A, L Either A](g, Left[L, A](ex)) { (_, b) => Right[L, A](b) }
       }
   }
+
 }

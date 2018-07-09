@@ -2,7 +2,7 @@ package examples
 
 import cats.Eval
 import fs2.util.Async
-import fs2.{Task, async}
+import fs2.Task
 
 /**
   *
@@ -20,7 +20,7 @@ package object concurrency {
 
   val T = implicitly[Async[Task]]
 
-  val semaphore = async.mutable.Semaphore[Task](0).unsafeRun()
+  val semaphore = fs2.async.mutable.Semaphore[Task](0).unsafeRun()
 
   val longs = nums.map(_.toLong.abs)
   val longsRev = longs.reverse

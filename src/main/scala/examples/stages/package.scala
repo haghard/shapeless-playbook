@@ -19,11 +19,16 @@ package object stages {
     def weight: Int
   }
 
+  object f extends Poly1 {
+    implicit def cse = at[Int](a => a * 2)
+  }
+
   implicit class hlist2Relation[A <: HList, B <: HList](dependencies: A)(implicit ev: StageComapped[A, B]) {
     def fanOut[R](f: B => Stage[R]) = ???
       //dependencies.map
       //println("1")
   }
+
 
   val a = new Stage("A") {  override def weight = 9 }
   val b: Stage[String] = new Stage("B") { override def weight = 9 }
@@ -48,4 +53,5 @@ package object stages {
     }
   }
 
+  //https://gist.github.com/tek/17f46e8da5243b31177b718c9d0f2fc2
 }
