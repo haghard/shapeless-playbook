@@ -13,15 +13,12 @@ val scalazVersion = "7.2.8"
 val scalazCore = "org.scalaz" %% "scalaz-core" % scalazVersion
 val scalazConcurrent = "org.scalaz" %% "scalaz-concurrent" % scalazVersion
 
-//scalacOptions ++= Seq("-deprecation", "-unchecked", "-Xexperimental", "-Xlog-implicits")
-
-initialCommands in (console) := """ammonite.Main().run()"""
+//initialCommands in (console) := """ammonite.Main().run()"""
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.1" % "test",
   "com.chuusai" %% "shapeless" % "2.3.3",
   scalazCore, scalazConcurrent
-  //"com.lihaoyi" % "ammonite" % "COMMIT-057440b" cross CrossVersion.full //0.8.0
 )
 
 libraryDependencies ++= Seq(
